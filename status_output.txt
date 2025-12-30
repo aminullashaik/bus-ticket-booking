@@ -1,0 +1,20 @@
+On branch main
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Changes to be committed:
+	new file:   LICENSE
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+	both added:      .gitignore
+	both added:      README.md
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_status.txt
+	pull_output.txt
+	push_output.txt
+	status_output.txt
+

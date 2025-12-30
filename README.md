@@ -1,6 +1,6 @@
 # Bus Ticket Booking Application
 
-A full-stack MERN application for booking bus tickets.
+A full-stack MERN application for booking bus tickets. This application allows users to search buses and book tickets through a user-friendly interface, while providing administrative tools to manage buses, routes, and schedules.
 
 ## Features
 - **User**: Search buses, View details, Select seats, Book tickets, View History.
