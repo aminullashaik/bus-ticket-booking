@@ -1,109 +1,84 @@
 const Schedule = require('../models/Schedule');
 
-// @desc    Get all schedules (optionally filter by route)
-// @route   GET /api/schedules
-// @access  Public
 const getSchedules = async (req, res) => {
   try {
     const { from, to, date } = req.query;
-    // Basic filtering logic
     let query = {};
+    
+    // If filtering by route
+    if (from && to) {
+        // Find routes that match source/dest (requires populating first or separate query)
+        // Since we store route ObjectId in Schedule, we need to populate 'route' 
+        // to filter by route fields, OR find matching Route IDs first.
+        // Easiest is to populate and filter in memory if dataset small, 
+        // or finding Route IDs first. Let's find IDs first.
+        const Route = require('../models/Route');
+        const routes = await Route.find({ 
+            source: { $regex: new RegExp(from, 'i') }, 
+            destination: { $regex: new RegExp(to, 'i') } 
+        });
+        const routeIds = routes.map(r => r._id);
+        query.route = { $in: routeIds };
+    }
+
     if (date) {
-        // Match date part only
-        const startOfDay = new Date(date);
-        const endOfDay = new Date(date);
-        endOfDay.setDate(endOfDay.getDate() + 1);
-        query.departureTime = { $gte: startOfDay, $lt: endOfDay };
-    }
-    
-    // Search by route source/dest requires joining Route, which is complex in simple find.
-    // For simplicity, we fetch schedules and populate route, then filter in memory or client side,
-    // Or we find Route IDs first.
-    
-    // Better: If from/to provided, find matching Routes first
-    if (from && to) {
-        // This logic requires circular dependency or import logic. 
-        // For now, simpler implementation:
+        const queryDate = new Date(date);
+        const nextDay = new Date(date);
+        nextDay.setDate(nextDay.getDate() + 1);
+        
+        query.departureTime = {
+            $gte: queryDate,
+            $lt: nextDay
+        };
     }
 
-    const schedules = await Schedule.find(query).populate('bus').populate('route');
-    
-    // Filter by route source/dest if params exist
-    let result = schedules;
-    if (from && to) {
-        result = schedules.filter(s => 
-            s.route.source.toLowerCase() === from.toLowerCase() && 
-            s.route.destination.toLowerCase() === to.toLowerCase()
-        );
-    }
-
-    res.json(result);
+    const schedules = await Schedule.find(query)
+        .populate('bus')
+        .populate('route');
+        
+    res.json(schedules);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// @desc    Get schedule by ID
-// @route   GET /api/schedules/:id
-// @access  Public
 const getScheduleById = async (req, res) => {
-  try {
-    const schedule = await Schedule.findById(req.params.id).populate('bus').populate('route');
-    if (schedule) {
-      res.json(schedule);
-    } else {
-      res.status(404).json({ message: 'Schedule not found' });
+    try {
+        const schedule = await Schedule.findById(req.params.id)
+            .populate('bus')
+            .populate('route');
+            
+        if(schedule) {
+            res.json(schedule);
+        } else {
+            res.status(404).json({ message: 'Schedule not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 };
 
-// @desc    Create a schedule
-// @route   POST /api/schedules
-// @access  Private/Admin
 const createSchedule = async (req, res) => {
-  const { busId, routeId, departureTime, arrivalTime, price } = req.body;
-
   try {
-    const schedule = new Schedule({
-      bus: busId,
-      route: routeId,
-      departureTime,
-      arrivalTime,
-      price,
-    });
-
-    const createdSchedule = await schedule.save();
-    res.status(201).json(createdSchedule);
+    const schedule = await Schedule.create(req.body);
+    res.status(201).json(schedule);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
-// @desc    Delete a schedule
-// @route   DELETE /api/schedules/:id
-// @access  Private/Admin
 const deleteSchedule = async (req, res) => {
-  try {
-    const schedule = await Schedule.findById(req.params.id);
-
-    if (schedule) {
-      // Check if there are active bookings for this schedule?
-      // For now, simplicity:
-      await schedule.deleteOne();
-      res.json({ message: 'Schedule removed' });
-    } else {
-      res.status(404).json({ message: 'Schedule not found' });
+    try {
+        const schedule = await Schedule.findById(req.params.id);
+        if(schedule) {
+            await schedule.deleteOne();
+            res.json({ message: 'Schedule removed' });
+        } else {
+            res.status(404).json({ message: 'Schedule not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 };
 
-module.exports = {
-  getSchedules,
-  getScheduleById,
-  createSchedule,
-  deleteSchedule
-};
+module.exports = { getSchedules, getScheduleById, createSchedule, deleteSchedule };
