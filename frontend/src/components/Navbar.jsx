@@ -26,22 +26,22 @@ const Navbar = () => {
             animate={{ opacity: 1, x: 0 }}
             style={styles.logoText}
           >
-            JBS <span>EXECUTIVE</span>
+            JBS <span>BUS</span>
           </motion.span>
         </Link>
 
         {/* Navigation Links */}
         <div style={styles.linksGroup}>
           <Link to="/" style={styles.navLink}>
-            <span style={styles.linkText}>Experience</span>
+            <span style={styles.linkText}>Home</span>
           </Link>
           <Link to="/buses" style={styles.navLink}>
             <Globe size={16} />
-            <span style={styles.linkText}>Global Fleet</span>
+            <span style={styles.linkText}>Buses</span>
           </Link>
           <Link to="/support" style={styles.navLink}>
             <HelpCircle size={16} />
-            <span style={styles.linkText}>Concierge</span>
+            <span style={styles.linkText}>Support</span>
           </Link>
           
           <div style={styles.divider}></div>
@@ -56,7 +56,7 @@ const Navbar = () => {
               {user.role === 'admin' && (
                 <Link to="/admin" style={styles.adminPulseLink}>
                   <LayoutDashboard size={18} />
-                  <span>Command Center</span>
+                  <span>Admin Panel</span>
                 </Link>
               )}
 
@@ -84,7 +84,7 @@ const Navbar = () => {
                 className="btn btn-primary"
                 style={styles.registerBtn}
               >
-                Join JBS Elite
+                Sign Up
               </motion.button>
             </div>
           )}

@@ -15,9 +15,20 @@ import LoadingBar from './components/LoadingBar';
 import PageTransition from './components/PageTransition';
 
 import PaymentPage from './pages/PaymentPage';
+import TrackingPage from './pages/TrackingPage';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  let user = null;
+  try {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      user = JSON.parse(storedUser);
+    }
+  } catch (error) {
+    console.error("Failed to parse user data:", error);
+    localStorage.removeItem('user'); // Clear corrupted data
+  }
+
   if (!user) return <Navigate to="/login" />;
   if (adminOnly && user.role !== 'admin') return <Navigate to="/" />;
   return children;
@@ -64,6 +75,10 @@ function App() {
             </Route>
 
             <Route path="/support" element={<PageTransition><Navbar /><Support /></PageTransition>} />
+
+            <Route path="/track/:pnr" element={
+              <ProtectedRoute><PageTransition><TrackingPage /></PageTransition></ProtectedRoute>
+            } />
 
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>

@@ -135,26 +135,28 @@ const Home = () => {
       {/* VALUE PROPOSITION GRID */}
       <section style={styles.valueSection}>
         <div style={styles.gridContainer}>
-            <div className="card-premium animate-fade-in" style={{ flex: 1 }}>
+            <div className="card-premium animate-fade-in" style={{ flex: '1 1 300px' }}>
                 <TrendingUp size={32} color="var(--primary)" style={{ marginBottom: '20px' }} />
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Smart Scheduling</h3>
-                <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Our proprietary travel engine optimizes schedules for maximum efficiency and on-time performance.</p>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Fast Booking</h3>
+                <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Book your seats in seconds. Our system is designed for speed and simplicity.</p>
             </div>
-            <div className="card-premium animate-fade-in" style={{ flex: 1, animationDelay: '0.2s' }}>
+            <div className="card-premium animate-fade-in" style={{ flex: '1 1 300px', animationDelay: '0.2s' }}>
                 <Users size={32} color="var(--secondary)" style={{ marginBottom: '20px' }} />
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Loyalty Rewards</h3>
-                <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Earn JBS Miles on every booking. Redeem points for free travel or executive lounge access.</p>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Earn Points</h3>
+                <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Get rewards on every trip. Use points for free rides or discounts.</p>
             </div>
-            <div className="card-premium animate-fade-in" style={{ flex: 1, animationDelay: '0.4s' }}>
+            <div className="card-premium animate-fade-in" style={{ flex: '1 1 300px', animationDelay: '0.4s' }}>
                 <Zap size={32} color="var(--accent-purple)" style={{ marginBottom: '20px' }} />
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Instant Digital Delivery</h3>
-                <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Receive your personalized tickets instantly via WhatsApp or SMS. Go paperless with JBS.</p>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>E-Tickets</h3>
+                <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Get tickets directly on WhatsApp. No printing needed, just show and go.</p>
             </div>
         </div>
       </section>
     </div>
   );
 };
+
+import heroBg from '../assets/hero-bg.png';
 
 const styles = {
   container: { 
@@ -170,7 +172,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundImage: "url('file:///C:/Users/SHAIK AMINULLA/.gemini/antigravity/brain/a44850d5-0609-4273-b7b5-45d5182af528/premium_hero_bg_1767077858875.png')",
+    backgroundImage: `url(${heroBg})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
     padding: "0 40px"
@@ -298,6 +300,8 @@ const styles = {
     width: "100%",
     maxWidth: "1350px",
     display: "flex",
+    flexWrap: "wrap", // Allows boxes to wrap to next line
+    justifyContent: "center", // Centers them when wrapped
     gap: "32px"
   }
 };

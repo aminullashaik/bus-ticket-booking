@@ -18,8 +18,13 @@ const Login = () => {
     setError("");
     setLoading(true);
 
+    let email = formData.email.trim();
+    if (!email.includes('@')) {
+      email += '@gmail.com';
+    }
+
     const loginData = {
-      email: formData.email.trim(),
+      email: email,
       password: formData.password.trim()
     };
 
@@ -32,7 +37,7 @@ const Login = () => {
         navigate("/");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid credentials for JBS Executive");
+      setError(err.response?.data?.message || "Invalid credentials");
     } finally {
       setLoading(false);
     }
@@ -45,7 +50,7 @@ const Login = () => {
       
       <div style={styles.mainWrapper}>
         <div style={{ marginBottom: '40px' }}>
-            <PremiumBackButton to="/" label="Back to Network" />
+            <PremiumBackButton to="/" label="Back to Home" />
         </div>
 
         <motion.div 
@@ -56,8 +61,8 @@ const Login = () => {
         >
             <div style={styles.headerArea}>
                 <div style={styles.brandIcon}><Key size={28} color="var(--primary)" /></div>
-                <h2 style={styles.title}>Member Authentication</h2>
-                <p style={styles.subtitle}>Enter your JBS Executive credentials to continue</p>
+                <h2 style={styles.title}>Login</h2>
+                <p style={styles.subtitle}>Sign in to your account</p>
             </div>
 
             {error && (
@@ -68,12 +73,12 @@ const Login = () => {
 
             <form onSubmit={handleSubmit} style={styles.formGrid}>
                 <div style={styles.inputGroup}>
-                    <label style={styles.label}>Electronic Mail</label>
+                    <label style={styles.label}>Email Address or Username</label>
                     <div style={{...styles.inputWrapper, borderColor: focusedField === 'email' ? 'var(--primary)' : 'var(--border-glass)'}}>
                         <Mail size={18} color={focusedField === 'email' ? 'var(--primary)' : '#64748b'} />
                         <input
-                            type="email"
-                            placeholder="executive@jbs.com"
+                            type="text"
+                            placeholder="username or name@company.com"
                             style={styles.input}
                             onFocus={() => setFocusedField('email')}
                             onBlur={() => setFocusedField(null)}
@@ -86,8 +91,8 @@ const Login = () => {
 
                 <div style={styles.inputGroup}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <label style={styles.label}>Access Key</label>
-                        <span style={styles.forgotLink}>Forgot Key?</span>
+                        <label style={styles.label}>Password</label>
+                        <span style={styles.forgotLink}>Forgot Password?</span>
                     </div>
                     <div style={{...styles.inputWrapper, borderColor: focusedField === 'password' ? 'var(--primary)' : 'var(--border-glass)'}}>
                         <Lock size={18} color={focusedField === 'password' ? 'var(--primary)' : '#64748b'} />
@@ -113,7 +118,7 @@ const Login = () => {
                     className="btn btn-primary"
                     style={styles.submitBtn}
                 >
-                    {loading ? "Authenticating..." : "Authorize Access"}
+                    {loading ? "Logging in..." : "Login"}
                 </button>
             </form>
 
@@ -124,13 +129,13 @@ const Login = () => {
             </div>
 
             <div style={styles.footer}>
-                New to the platform? <span style={styles.link} onClick={() => navigate("/register")}>Request Membership</span>
+                New here? <span style={styles.link} onClick={() => navigate("/register")}>Sign Up</span>
             </div>
         </motion.div>
 
         <div style={styles.safetyRow}>
             <ShieldCheck size={16} color="var(--secondary)" />
-            <span>End-to-End Encrypted Session</span>
+            <span>Secure Login</span>
         </div>
       </div>
     </div>

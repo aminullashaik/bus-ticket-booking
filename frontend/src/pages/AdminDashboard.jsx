@@ -57,14 +57,14 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                 api.get('/schedules')
             ]);
             
-            setBuses(busesRes.data);
-            setRoutes(routesRes.data);
-            setBookings(bookingsRes.data);
-            setTickets(ticketsRes.data);
-            setSchedules(schedulesRes.data);
+            setBuses(busesRes.data || []);
+            setRoutes(routesRes.data || []);
+            setBookings(bookingsRes.data || []);
+            setTickets(ticketsRes.data || []);
+            setSchedules(schedulesRes.data || []);
 
             // Calculate Stats
-            const revenue = bookingsRes.data.reduce((sum, b) => sum + b.totalAmount, 0);
+            const revenue = (bookingsRes.data || []).reduce((sum, b) => sum + (b.totalAmount || 0), 0);
             setStats({
                 revenue,
                 totalBookings: bookingsRes.data.length,
@@ -418,13 +418,30 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
 
                     <div style={{...styles.card, marginBottom: '20px'}}>
                         <h3 style={styles.cardTitle}>Create New Route</h3>
-                        <form onSubmit={handleCreateRoute} style={styles.managementForm}>
-                            <input placeholder="Source City" value={routeForm.source} onChange={e => setRouteForm({...routeForm, source: e.target.value})} style={styles.formInput} required />
-                            <input placeholder="Departure Point (Local)" value={routeForm.departurePoint} onChange={e => setRouteForm({...routeForm, departurePoint: e.target.value})} style={styles.formInput} required />
-                            <input placeholder="Destination City" value={routeForm.destination} onChange={e => setRouteForm({...routeForm, destination: e.target.value})} style={styles.formInput} required />
-                            <input placeholder="Arrival Point (Local)" value={routeForm.arrivalPoint} onChange={e => setRouteForm({...routeForm, arrivalPoint: e.target.value})} style={styles.formInput} required />
-                            <input type="number" placeholder="Distance (km)" value={routeForm.distance} onChange={e => setRouteForm({...routeForm, distance: e.target.value})} style={styles.formInput} required />
-                            <button className="btn btn-primary" style={{gridColumn: 'span 2'}}>Create Route</button>
+                        <form onSubmit={handleCreateRoute} className="admin-grid-3">
+                            <div style={styles.inputGroupCompact}>
+                                <label style={styles.inputLabel}>Source City</label>
+                                <input placeholder="e.g. Hyderabad" value={routeForm.source} onChange={e => setRouteForm({...routeForm, source: e.target.value})} className="admin-input-premium" required />
+                            </div>
+                            <div style={styles.inputGroupCompact}>
+                                <label style={styles.inputLabel}>Destination City</label>
+                                <input placeholder="e.g. Bangalore" value={routeForm.destination} onChange={e => setRouteForm({...routeForm, destination: e.target.value})} className="admin-input-premium" required />
+                            </div>
+                            <div style={styles.inputGroupCompact}>
+                                <label style={styles.inputLabel}>Boarding Point</label>
+                                <input placeholder="e.g. MGBS Terminal" value={routeForm.departurePoint} onChange={e => setRouteForm({...routeForm, departurePoint: e.target.value})} className="admin-input-premium" required />
+                            </div>
+                            <div style={styles.inputGroupCompact}>
+                                <label style={styles.inputLabel}>Dropping Point</label>
+                                <input placeholder="e.g. Majestic Stand" value={routeForm.arrivalPoint} onChange={e => setRouteForm({...routeForm, arrivalPoint: e.target.value})} className="admin-input-premium" required />
+                            </div>
+                            <div style={styles.inputGroupCompact}>
+                                <label style={styles.inputLabel}>Distance (km)</label>
+                                <input type="number" placeholder="0" value={routeForm.distance} onChange={e => setRouteForm({...routeForm, distance: e.target.value})} className="admin-input-premium" required />
+                            </div>
+                            <div style={{ display: 'flex' }}>
+                                <button className="btn btn-primary" style={{width: '100%', height: '48px', fontSize: '1rem'}}>+ Create Route</button>
+                            </div>
                         </form>
                     </div>
 
@@ -477,29 +494,38 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
 
                     <div style={{...styles.card, marginBottom: '20px'}}>
                         <h3 style={styles.cardTitle}>Publish New Schedule</h3>
-                        <form onSubmit={handleCreateSchedule} style={styles.managementForm}>
-                            <select value={scheduleForm.busId} onChange={e => setScheduleForm({...scheduleForm, busId: e.target.value})} style={styles.formInput} required>
-                                <option value="">Select Bus</option>
-                                {buses.map(b => (
-                                    <option key={b._id} value={b._id}>{b.operatorName} ({b.busNumber})</option>
-                                ))}
-                            </select>
-                            <select value={scheduleForm.routeId} onChange={e => setScheduleForm({...scheduleForm, routeId: e.target.value})} style={styles.formInput} required>
-                                <option value="">Select Route</option>
-                                {routes.map(r => (
-                                    <option key={r._id} value={r._id}>{r.source} ➝ {r.destination}</option>
-                                ))}
-                            </select>
-                            <div>
-                                <label style={{fontSize: '0.75rem', color: '#64748b', display: 'block', marginBottom: '4px'}}>DEPARTURE TIME</label>
-                                <input type="datetime-local" value={scheduleForm.departureTime} onChange={e => setScheduleForm({...scheduleForm, departureTime: e.target.value})} style={styles.formInput} required />
+                        <form onSubmit={handleCreateSchedule} className="admin-grid-3">
+                            <div style={styles.inputGroupCompact}>
+                                <label style={styles.inputLabel}>Select Bus</label>
+                                <select value={scheduleForm.busId} onChange={e => setScheduleForm({...scheduleForm, busId: e.target.value})} className="admin-input-premium" required>
+                                    <option value="">Choose Bus...</option>
+                                    {buses.map(b => (
+                                        <option key={b._id} value={b._id}>{b.operatorName} - {b.busNumber}</option>
+                                    ))}
+                                </select>
                             </div>
-                            <div>
-                                <label style={{fontSize: '0.75rem', color: '#64748b', display: 'block', marginBottom: '4px'}}>ARRIVAL TIME</label>
-                                <input type="datetime-local" value={scheduleForm.arrivalTime} onChange={e => setScheduleForm({...scheduleForm, arrivalTime: e.target.value})} style={styles.formInput} required />
+                            <div style={styles.inputGroupCompact}>
+                                <label style={styles.inputLabel}>Select Route</label>
+                                <select value={scheduleForm.routeId} onChange={e => setScheduleForm({...scheduleForm, routeId: e.target.value})} className="admin-input-premium" required>
+                                    <option value="">Choose Route...</option>
+                                    {routes.map(r => (
+                                        <option key={r._id} value={r._id}>{r.source} ➝ {r.destination}</option>
+                                    ))}
+                                </select>
                             </div>
-                            <input type="number" placeholder="Price (₹)" value={scheduleForm.price} onChange={e => setScheduleForm({...scheduleForm, price: e.target.value})} style={styles.formInput} required />
-                            <button className="btn btn-primary" style={{gridColumn: 'span 2'}}>Publish Schedule</button>
+                            <div style={styles.inputGroupCompact}>
+                                <label style={styles.inputLabel}>Departure Time</label>
+                                <input type="datetime-local" value={scheduleForm.departureTime} onChange={e => setScheduleForm({...scheduleForm, departureTime: e.target.value})} className="admin-input-premium" required />
+                            </div>
+                            <div style={styles.inputGroupCompact}>
+                                <label style={styles.inputLabel}>Arrival Time</label>
+                                <input type="datetime-local" value={scheduleForm.arrivalTime} onChange={e => setScheduleForm({...scheduleForm, arrivalTime: e.target.value})} className="admin-input-premium" required />
+                            </div>
+                            <div style={styles.inputGroupCompact}>
+                                <label style={styles.inputLabel}>Ticket Price (₹)</label>
+                                <input type="number" placeholder="e.g. 1500" value={scheduleForm.price} onChange={e => setScheduleForm({...scheduleForm, price: e.target.value})} className="admin-input-premium" required />
+                            </div>
+                            <button className="btn btn-primary" style={{width: '100%', height: '48px', fontSize: '1rem'}}>+ Publish Schedule</button>
                         </form>
                     </div>
 
@@ -602,25 +628,25 @@ const styles = {
     },
     card: {
         background: '#0f141c',
-        borderRadius: '28px',
-        padding: '30px',
+        borderRadius: '16px', // Reduced radius
+        padding: '24px', // Reduced padding
         border: '1px solid rgba(255,255,255,0.05)',
-        boxShadow: '0 20px 50px -15px rgba(0,0,0,0.6)',
+        boxShadow: '0 10px 30px -10px rgba(0,0,0,0.4)', // Softer shadow
     },
     cardHeader: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '24px',
+        marginBottom: '20px', // Reduced margin
     },
     cardTitle: { fontSize: '1.25rem', fontWeight: '800', color: '#fff' },
     textBtn: { background: 'transparent', border: 'none', color: '#3b82f6', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem' },
     
-    listContainer: { display: 'flex', flexDirection: 'column', gap: '16px' },
+    listContainer: { display: 'flex', flexDirection: 'column', gap: '12px' }, // Compact gap
     listItem: {
         background: 'rgba(255,255,255,0.02)',
-        padding: '16px',
-        borderRadius: '16px',
+        padding: '12px 16px', // Compact padding
+        borderRadius: '12px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -628,24 +654,24 @@ const styles = {
         transition: 'transform 0.2s',
         cursor: 'pointer',
     },
-    itemLead: { display: 'flex', alignItems: 'center', gap: '14px' },
+    itemLead: { display: 'flex', alignItems: 'center', gap: '12px' },
     circleAvatar: {
-        width: '44px',
-        height: '44px',
-        borderRadius: '12px',
+        width: '40px', // Compact
+        height: '40px', // Compact
+        borderRadius: '10px',
         background: 'linear-gradient(135deg, #1e293b, #0f172a)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         color: '#3b82f6',
         fontWeight: '900',
-        fontSize: '1.1rem',
+        fontSize: '1rem',
         border: '1px solid rgba(59, 130, 246, 0.2)',
     },
-    itemTitle: { display: 'block', fontWeight: '700', color: '#e2e8f0', fontSize: '0.95rem' },
-    itemSub: { display: 'block', fontSize: '0.8rem', color: '#64748b', fontWeight: '500' },
-    itemEnd: { textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '4px' },
-    itemPrice: { fontWeight: '900', color: '#10b981', fontSize: '1.1rem' },
+    itemTitle: { display: 'block', fontWeight: '700', color: '#e2e8f0', fontSize: '0.9rem' },
+    itemSub: { display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: '500' },
+    itemEnd: { textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '2px' },
+    itemPrice: { fontWeight: '900', color: '#10b981', fontSize: '1rem' },
     statusBadge: {
         fontSize: '0.65rem',
         fontWeight: '800',
@@ -656,83 +682,88 @@ const styles = {
         textTransform: 'uppercase',
     },
 
-    tableHeader: { marginBottom: '20px' },
-    tableFilters: { display: 'flex', gap: '16px' },
+    tableHeader: { marginBottom: '16px' },
+    tableFilters: { display: 'flex', gap: '12px' },
     searchBox: {
         flex: 1,
         background: 'rgba(255,255,255,0.02)',
         border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: '12px',
-        padding: '10px 16px',
+        borderRadius: '10px',
+        padding: '8px 14px',
         display: 'flex',
         alignItems: 'center',
-        gap: '12px',
+        gap: '10px',
     },
     tableInput: { background: 'transparent', border: 'none', color: '#fff', outline: 'none', width: '100%', fontSize: '0.9rem' },
     filterBtn: {
         background: 'rgba(255,255,255,0.03)',
         border: '1px solid rgba(255,255,255,0.08)',
         color: '#fff',
-        padding: '10px 20px',
-        borderRadius: '12px',
+        padding: '8px 16px',
+        borderRadius: '10px',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
         fontWeight: '600',
         cursor: 'pointer',
+        fontSize: '0.9rem'
     },
-    table: { width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' },
-    tableHeadRow: { textAlign: 'left', color: '#64748b', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase' },
+    table: { width: '100%', borderCollapse: 'separate', borderSpacing: '0 4px' }, // Compact spacing
+    tableHeadRow: { textAlign: 'left', color: '#64748b', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase' },
     tableRow: { background: 'rgba(255,255,255,0.02)', transition: 'background 0.2s' },
     userNameGroup: { display: 'flex', flexDirection: 'column' },
-    mainName: { fontWeight: '700', color: '#fff' },
-    subName: { fontSize: '0.8rem', color: '#64748b' },
+    mainName: { fontWeight: '700', color: '#fff', fontSize: '0.9rem' },
+    subName: { fontSize: '0.75rem', color: '#64748b' },
     routeGroup: { display: 'flex', flexDirection: 'column' },
-    routeName: { fontWeight: '700', color: '#fff' },
-    routeSub: { fontSize: '0.8rem', color: '#64748b' },
+    routeName: { fontWeight: '700', color: '#fff', fontSize: '0.9rem' },
+    routeSub: { fontSize: '0.75rem', color: '#64748b' },
 
-    ticketsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '24px' },
+    ticketsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' },
     ticketCard: {
         background: '#0f141c',
-        borderRadius: '24px',
-        padding: '24px',
+        borderRadius: '16px',
+        padding: '20px',
         border: '1px solid rgba(255,255,255,0.05)',
         display: 'flex',
         flexDirection: 'column',
-        gap: '16px',
+        gap: '12px',
     },
     managementForm: {
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
-        gap: '20px',
+        gap: '16px',
         marginTop: '10px',
     },
+    ticketHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+    priorityBadge: { fontSize: '0.65rem', fontWeight: '900', padding: '4px 8px', borderRadius: '6px', textTransform: 'uppercase' },
+    ticketDate: { fontSize: '0.75rem', color: '#475569', fontWeight: '600' },
+    ticketSubject: { fontSize: '1.1rem', fontWeight: '800', color: '#fff', margin: 0 },
+    ticketMessage: { color: '#94a3b8', fontSize: '0.9rem', lineHeight: '1.5' },
+    ticketUser: { display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' },
+    avatarMini: { width: '28px', height: '28px', borderRadius: '8px', background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', color: '#fff', fontSize: '0.8rem' },
+    userInfoMini: { display: 'flex', flexDirection: 'column' },
+    userNameMini: { fontSize: '0.85rem', fontWeight: '700', color: '#e2e8f0' },
+    userEmailMini: { fontSize: '0.7rem', color: '#64748b' },
+    ticketActions: { display: 'flex', gap: '10px', marginTop: 'auto' },
+    ticketSelect: { flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', padding: '6px', outline: 'none', fontSize: '0.9rem' },
+    actionBtn: { background: '#3b82f6', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem' },
+
+    emptyState: { textAlign: 'center', color: '#475569', padding: '32px', fontSize: '0.95rem', fontWeight: '500', fontStyle: 'italic' },
+    
+    // New Form Styles
+    inputGroupCompact: { display: 'flex', flexDirection: 'column' },
+    inputLabel: { fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8', marginBottom: '6px', display: 'block' },
     formInput: {
         background: 'rgba(255,255,255,0.03)',
         border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: '14px',
-        padding: '14px 18px',
+        borderRadius: '8px', // Sharper corners
+        padding: '10px 14px', // Compact padding
         color: '#fff',
-        fontSize: '0.95rem',
+        fontSize: '0.9rem',
         outline: 'none',
         transition: 'border-color 0.2s',
         width: '100%',
-    },
-    ticketHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-    priorityBadge: { fontSize: '0.7rem', fontWeight: '900', padding: '4px 10px', borderRadius: '8px', textTransform: 'uppercase' },
-    ticketDate: { fontSize: '0.75rem', color: '#475569', fontWeight: '600' },
-    ticketSubject: { fontSize: '1.2rem', fontWeight: '800', color: '#fff', margin: 0 },
-    ticketMessage: { color: '#94a3b8', fontSize: '0.9rem', lineHeight: '1.6' },
-    ticketUser: { display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '14px' },
-    avatarMini: { width: '32px', height: '32px', borderRadius: '8px', background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', color: '#fff' },
-    userInfoMini: { display: 'flex', flexDirection: 'column' },
-    userNameMini: { fontSize: '0.85rem', fontWeight: '700', color: '#e2e8f0' },
-    userEmailMini: { fontSize: '0.75rem', color: '#64748b' },
-    ticketActions: { display: 'flex', gap: '12px', marginTop: 'auto' },
-    ticketSelect: { flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '10px', padding: '8px', outline: 'none' },
-    actionBtn: { background: '#3b82f6', color: '#fff', border: 'none', padding: '8px 20px', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' },
-
-    emptyState: { textAlign: 'center', color: '#475569', padding: '40px', fontSize: '1rem', fontWeight: '600', fontStyle: 'italic' }
+    }
 };
 
 export default AdminDashboard;
