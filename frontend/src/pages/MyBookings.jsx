@@ -110,6 +110,12 @@ const MyBookings = () => {
                                     </div>
                                     <div style={styles.actionGroup}>
                                         <button 
+                                            onClick={() => navigate(`/track/${booking._id.slice(-6).toUpperCase()}`)}
+                                            style={{...styles.secondaryBtn, color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.3)'}}
+                                        >
+                                            <MapPin size={16} /> Track Live
+                                        </button>
+                                        <button 
                                             onClick={() => navigate('/success', { state: { booking } })}
                                             style={styles.secondaryBtn}
                                         >

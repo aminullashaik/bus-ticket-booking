@@ -16,8 +16,18 @@ const Register = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
+    let email = formData.email.trim();
+    if (!email.includes('@')) {
+      email += '@gmail.com';
+    }
+
+    const registrationData = {
+      ...formData,
+      email: email
+    };
+
     try {
-      const { data } = await api.post("/auth/register", formData);
+      const { data } = await api.post("/auth/register", registrationData);
       localStorage.setItem("user", JSON.stringify(data));
       navigate("/");
     } catch (err) {
@@ -44,8 +54,8 @@ const Register = () => {
         >
             <div style={styles.headerArea}>
                 <div style={styles.brandIcon}><UserPlus size={28} color="var(--secondary)" /></div>
-                <h2 style={styles.title}>Elite Membership</h2>
-                <p style={styles.subtitle}>Join our exclusive network of corporate travelers</p>
+                <h2 style={styles.title}>Create Account</h2>
+                <p style={styles.subtitle}>Join us today! Enter your details below.</p>
             </div>
 
             {error && (
@@ -56,12 +66,12 @@ const Register = () => {
 
             <form onSubmit={handleSubmit} style={styles.formGrid}>
                 <div style={styles.inputGroup}>
-                    <label style={styles.label}>Legal Full Name</label>
+                    <label style={styles.label}>Full Name</label>
                     <div style={{...styles.inputWrapper, borderColor: focusedField === 'name' ? 'var(--secondary)' : 'var(--border-glass)'}}>
                         <User size={18} color={focusedField === 'name' ? 'var(--secondary)' : '#64748b'} />
                         <input
                             type="text"
-                            placeholder="Full Name"
+                            placeholder="John Doe"
                             style={styles.input}
                             onFocus={() => setFocusedField('name')}
                             onBlur={() => setFocusedField(null)}
@@ -73,12 +83,12 @@ const Register = () => {
                 </div>
 
                 <div style={styles.inputGroup}>
-                    <label style={styles.label}>Electronic Mail</label>
+                    <label style={styles.label}>Email Address or Username</label>
                     <div style={{...styles.inputWrapper, borderColor: focusedField === 'email' ? 'var(--secondary)' : 'var(--border-glass)'}}>
                         <Mail size={18} color={focusedField === 'email' ? 'var(--secondary)' : '#64748b'} />
                         <input
-                            type="email"
-                            placeholder="executive@jbs.com"
+                            type="text"
+                            placeholder="username or name@company.com"
                             style={styles.input}
                             onFocus={() => setFocusedField('email')}
                             onBlur={() => setFocusedField(null)}
@@ -90,12 +100,12 @@ const Register = () => {
                 </div>
 
                 <div style={styles.inputGroup}>
-                    <label style={styles.label}>Access Key (Password)</label>
+                    <label style={styles.label}>Password</label>
                     <div style={{...styles.inputWrapper, borderColor: focusedField === 'password' ? 'var(--secondary)' : 'var(--border-glass)'}}>
                         <Lock size={18} color={focusedField === 'password' ? 'var(--secondary)' : '#64748b'} />
                         <input
                             type="password"
-                            placeholder="Configure Secure Key"
+                            placeholder="Enter your password"
                             style={styles.input}
                             onFocus={() => setFocusedField('password')}
                             onBlur={() => setFocusedField(null)}
@@ -107,18 +117,18 @@ const Register = () => {
                 </div>
 
                 <button type="submit" disabled={loading} className="btn btn-primary" style={{...styles.submitBtn, background: "linear-gradient(135deg, var(--secondary), #059669)"}}>
-                    {loading ? "Processing Membership..." : "Confirm Membership"}
+                    {loading ? "Creating Account..." : "Sign Up"}
                 </button>
             </form>
 
             <div style={styles.footer}>
-                Already an Elite Member? <span style={styles.link} onClick={() => navigate("/login")}>Sign In</span>
+                Already have an account? <span style={styles.link} onClick={() => navigate("/login")}>Sign In</span>
             </div>
         </motion.div>
 
         <div style={styles.safetyRow}>
             <Zap size={16} color="var(--primary)" />
-            <span>Instant Membership Verification</span>
+            <span>Secure & Fast Registration</span>
         </div>
       </div>
     </div>

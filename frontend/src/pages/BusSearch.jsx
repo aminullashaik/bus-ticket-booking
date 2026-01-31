@@ -49,14 +49,15 @@ const BusSearch = () => {
   };
 
   if (loading) return (
-    <div style={styles.loadingWrapper}>
-        <motion.div 
-            animate={{ rotate: 360 }} 
-            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-        >
-            <Bus size={40} color="var(--primary)" />
-        </motion.div>
-        <p style={{ marginTop: '1rem', color: 'var(--text-muted)', fontWeight: '600' }}>Fetching premium fleet...</p>
+    <div style={styles.pageWrapper}>
+      <div className="container" style={{ paddingTop: '100px' }}>
+         <div style={{...styles.scheduleGrid, opacity: 0.6}}>
+            {[1,2,3].map(i => (
+                <div key={i} className="card-premium skeleton-shimmer" style={{...styles.busCard, height: '280px', border: '1px solid rgba(255,255,255,0.05)'}}></div>
+            ))}
+         </div>
+         <p style={{ textAlign: 'center', marginTop: '20px', color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: '600', animation: 'pulse 2s infinite' }}>Searching live inventory...</p>
+      </div>
     </div>
   );
 
@@ -118,9 +119,16 @@ const BusSearch = () => {
                                     <div style={styles.busTypeBadge}>{schedule.bus.type}</div>
                                 </div>
                             </div>
-                            <div style={styles.ratingBox}>
-                                <Star size={14} fill="currentColor" />
-                                <span>4.8</span>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                {Math.random() > 0.5 && (
+                                    <div style={styles.liveBadge}>
+                                        <span style={styles.pulseDot}></span> Selling Fast
+                                    </div>
+                                )}
+                                <div style={styles.ratingBox}>
+                                    <Star size={14} fill="currentColor" />
+                                    <span>4.8</span>
+                                </div>
                             </div>
                         </div>
 
@@ -211,7 +219,10 @@ const styles = {
   bookBtn: { height: '56px', borderRadius: '16px', padding: '0 30px' },
   
   emptyCard: { textAlign: 'center', padding: '80px 40px' },
-  emptyIcon: { width: '80px', height: '80px', background: 'rgba(255,255,255,0.03)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', margin: '0 auto 24px' }
+  emptyIcon: { width: '80px', height: '80px', background: 'rgba(255,255,255,0.03)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', margin: '0 auto 24px' },
+  
+  liveBadge: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', padding: '6px 10px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.2)' },
+  pulseDot: { width: '6px', height: '6px', background: '#ef4444', borderRadius: '50%', animation: 'pulse 1.5s infinite' }
 };
 
 export default BusSearch;

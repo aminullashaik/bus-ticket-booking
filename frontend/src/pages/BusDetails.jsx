@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, ChevronRight, User, ShieldCheck, Zap, Info } from 'lucide-react';
+import { ShoppingBag, ChevronRight, User, ShieldCheck, Zap, Info, Users } from 'lucide-react';
 import api from '../utils/api';
 import PremiumBackButton from '../components/PremiumBackButton';
 
@@ -142,8 +142,13 @@ const BusDetails = () => {
                 <div style={styles.summarySticky}>
                     <div className="card-premium glass-effect" style={styles.summaryCard}>
                         <div style={styles.summaryHeader}>
-                            <ShoppingBag size={24} color="var(--primary)" />
-                            <h3 style={{ margin: 0, fontSize: '1.4rem' }}>Booking Summary</h3>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                <ShoppingBag size={24} color="var(--primary)" />
+                                <h3 style={{ margin: 0, fontSize: '1.4rem' }}>Booking Summary</h3>
+                            </div>
+                            <div style={styles.viewingBadge}>
+                                <Users size={12} /> {Math.floor(Math.random() * 5) + 2} viewing
+                            </div>
                         </div>
 
                         <div style={styles.summaryBody}>
@@ -241,14 +246,16 @@ const styles = {
     alignItems: 'center', 
     justifyContent: 'center', 
     gap: '4px',
-    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+    transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)' // Bouncy transition
   },
   seatLabel: { fontSize: '0.75rem', fontWeight: '800' },
   aisle: { width: '40px' },
   
+  viewingBadge: { fontSize: '0.7rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', padding: '4px 8px', borderRadius: '100px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '700' },
+  
   summarySticky: { position: 'sticky', top: '120px' },
   summaryCard: { padding: '32px' },
-  summaryHeader: { display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '32px' },
+  summaryHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' },
   summaryBody: { display: 'flex', flexDirection: 'column', gap: '24px' },
   summaryRow: { display: 'flex', flexDirection: 'column', gap: '6px' },
   summaryLabel: { fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' },

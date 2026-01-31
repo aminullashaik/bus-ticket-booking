@@ -1,0 +1,24 @@
+Aminulla Shaik
+2200030219cseh@gmail.com
+commit b362c498f80a6bf516bfc4c882f5f0501f060a0f
+Merge: 40fcd34 329e793
+Author: Aminulla Shaik <2200030219cseh@gmail.com>
+Date:   Wed Dec 31 00:28:34 2025 +0530
+
+    Merge branch 'main' of https://github.com/aminullashaik/bus-ticket-booking
+    
+    # Conflicts:
+    #       .gitignore
+    #       README.md
+
+commit 329e79377ecc0503860d3a95d58bba6bb82467ec
+Author: SHAIK AMINULLA <2200030219cseh@gmail.com>
+Date:   Wed Dec 31 00:13:22 2025 +0530
+
+    Initial commit
+
+commit 40fcd34dd84f039fe3b30c70123d592bc73663f0
+Author: Aminulla Shaik <2200030219cseh@gmail.com>
+Date:   Wed Dec 31 00:05:13 2025 +0530
+
+    Initial commit

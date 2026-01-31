@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     AlertCircle, CreditCard, Smartphone, Globe, ShieldCheck, 
-    Lock, CheckCircle, ChevronRight, Info, Zap, User, Phone,
+    Lock, CheckCircle, ChevronRight, Info, Zap, User, Phone, Clock,
     CreditCard as CardIcon
 } from 'lucide-react';
 import api from '../utils/api';
@@ -60,25 +60,49 @@ const PaymentPage = () => {
         setIsExpired(false);
     };
 
+    const [processingStep, setProcessingStep] = useState(0);
+    const [processingMsg, setProcessingMsg] = useState('');
+
+    const STEPS = [
+        "Encrypting Transaction Data...",
+        "Connecting to Secure Gateway...",
+        "Verifying Payment Credentials...",
+        "Waiting for Bank Authorization...",
+        "Transaction Approved!"
+    ];
+
     const handlePayment = async (e) => {
         if (e) e.preventDefault();
-        setLoading(true);
         setPaymentError(null);
 
         if (!passengerName || !passengerPhone) {
             setPaymentError("Identity Verification Required: Please provide Passenger Name and Contact.");
-            setLoading(false);
             return;
         }
 
-        try {
-            await new Promise(resolve => setTimeout(resolve, 3000));
+        setLoading(true);
+        let step = 0;
+        setProcessingMsg(STEPS[0]);
 
+        const interval = setInterval(() => {
+            step++;
+            if (step < STEPS.length) {
+                setProcessingStep(step);
+                setProcessingMsg(STEPS[step]);
+            } else {
+                clearInterval(interval);
+                finalizeBooking();
+            }
+        }, 1500); // 1.5s per step for realistic feel
+    };
+
+    const finalizeBooking = async () => {
+        try {
             const { data } = await api.post('/bookings', {
                 scheduleId: schedule._id,
                 seats,
                 paymentMethod,
-                transactionId: upiId || `EXECUTIVE_${Date.now()}`,
+                transactionId: upiId || `JBS_${Date.now()}`,
                 passengerName,
                 passengerPhone,
                 deliveryMethod
@@ -86,8 +110,9 @@ const PaymentPage = () => {
             
             navigate('/success', { state: { booking: data } });
         } catch (error) {
-            setPaymentError(error.response?.data?.message || 'Gateway Timeout: Unable to authorize transaction.');
             setLoading(false);
+            setProcessingStep(0);
+            setPaymentError(error.response?.data?.message || 'Gateway Timeout: Unable to authorize transaction.');
         }
     };
 
@@ -351,6 +376,34 @@ const PaymentPage = () => {
                     </div>
                 </div>
             </div>
+            {loading && (
+                <div style={styles.overlay}>
+                    <motion.div 
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        style={styles.processingCard}
+                    >
+                        <div style={styles.spinnerContainer}>
+                            <div style={styles.spinner}></div>
+                            <div style={styles.lockIcon}><Lock size={24} color="var(--primary)" /></div>
+                        </div>
+                        <h3 style={styles.processingTitle}>{processingMsg}</h3>
+                        <p style={styles.processingSub}>Do not close your browser window.</p>
+                        
+                        <div style={styles.progressBarBg}>
+                            <motion.div 
+                                style={styles.progressBarFill} 
+                                animate={{ width: `${((processingStep + 1) / 5) * 100}%` }}
+                            />
+                        </div>
+                        
+                        <div style={styles.secureBadge}>
+                            <ShieldCheck size={16} color="#059669" /> 
+                            <span>256-bit SSL Encrypted Connection</span>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
 };
@@ -410,7 +463,19 @@ const styles = {
     totalLabel: { fontSize: '1rem', fontWeight: '800', color: '#fff' },
     totalAmount: { fontSize: '2.2rem', fontWeight: '900', color: 'var(--secondary)' },
     trustRow: { marginTop: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: '600' },
-    supportBox: { marginTop: '24px', background: 'rgba(99, 102, 241, 0.05)', padding: '20px', borderRadius: '16px', display: 'flex', gap: '15px', alignItems: 'center', fontSize: '0.85rem', color: '#94a3b8', lineHeight: '1.6' }
+    supportBox: { marginTop: '24px', background: 'rgba(99, 102, 241, 0.05)', padding: '20px', borderRadius: '16px', display: 'flex', gap: '15px', alignItems: 'center', fontSize: '0.85rem', color: '#94a3b8', lineHeight: '1.6' },
+    
+    // NEW SIMULATION STYLES
+    overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(5, 7, 10, 0.9)', backdropFilter: 'blur(10px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+    processingCard: { background: '#111827', border: '1px solid rgba(255,255,255,0.1)', padding: '40px', borderRadius: '24px', textAlign: 'center', width: '90%', maxWidth: '400px', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' },
+    spinnerContainer: { position: 'relative', width: '80px', height: '80px', margin: '0 auto 24px' },
+    spinner: { width: '100%', height: '100%', border: '4px solid rgba(99, 102, 241, 0.2)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' },
+    lockIcon: { position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' },
+    processingTitle: { fontSize: '1.2rem', fontWeight: '800', color: '#fff', marginBottom: '8px' },
+    processingSub: { color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '30px' },
+    progressBarBg: { width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '100px', overflow: 'hidden', marginBottom: '24px' },
+    progressBarFill: { height: '100%', background: 'var(--primary)', borderRadius: '100px' },
+    secureBadge: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.8rem', color: '#059669', background: 'rgba(5, 150, 105, 0.1)', padding: '8px', borderRadius: '8px' }
 };
 
 export default PaymentPage;
