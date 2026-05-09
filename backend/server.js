@@ -14,6 +14,12 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
+// Debug Logger
+app.use((req, res, next) => {
+  console.log(`${req.method} request to ${req.url}`);
+  next();
+});
+
 // Environment Variable Validation
 if (!process.env.MONGO_URI || !process.env.JWT_SECRET) {
   console.error('FATAL ERROR: MONGO_URI or JWT_SECRET is not defined.');
