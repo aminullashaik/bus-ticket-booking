@@ -647,219 +647,69 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
 };
 
 const styles = {
-    dashboardWrapper: {
-        width: '100%',
-        animation: 'fadeIn 0.5s ease-out',
-    },
-    tabContent: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '32px',
-    },
+    dashboardWrapper: { width: '100%', animation: 'fadeIn 0.5s ease-out' },
+    tabContent: { display: 'flex', flexDirection: 'column', gap: '32px' },
     header: { marginBottom: '8px' },
-    pageTitle: { fontSize: '2.2rem', fontWeight: '900', marginBottom: '8px', color: '#fff', letterSpacing: '-1px' },
+    pageTitle: { fontSize: '2.2rem', fontWeight: '900', color: '#fff', letterSpacing: '-1px' },
     subTitle: { color: '#64748b', fontSize: '1.1rem', fontWeight: '500' },
-    
-    statsGrid: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-        gap: '24px',
-    },
-    statCard: {
-        background: '#0f141c',
-        borderRadius: '24px',
-        padding: '24px',
-        border: '1px solid rgba(255,255,255,0.05)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '20px',
-        boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)',
-    },
-    statIcon: {
-        width: '60px',
-        height: '60px',
-        borderRadius: '18px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    statInfo: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '4px',
-    },
-    statLabel: { fontSize: '0.85rem', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' },
+    statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px' },
+    statCard: { background: '#0f141c', borderRadius: '24px', padding: '24px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '20px', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)' },
+    statIcon: { width: '60px', height: '60px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+    statInfo: { display: 'flex', flexDirection: 'column', gap: '4px' },
+    statLabel: { fontSize: '0.85rem', color: '#64748b', fontWeight: '700', textTransform: 'uppercase' },
     statValue: { fontSize: '1.8rem', fontWeight: '900', color: '#fff' },
     statTrend: { fontSize: '0.75rem', color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '700' },
 
-    contentGrid: {
-        display: 'grid',
-        gridTemplateColumns: '1.5fr 1fr',
-        gap: '32px',
-    },
-    card: {
-        background: '#0f141c',
-        borderRadius: '16px', // Reduced radius
-        padding: '24px', // Reduced padding
-        border: '1px solid rgba(255,255,255,0.05)',
-        boxShadow: '0 10px 30px -10px rgba(0,0,0,0.4)', // Softer shadow
-    },
-    cardHeader: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '20px', // Reduced margin
-    },
+    contentGrid: { display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '32px' },
+    card: { background: '#0f141c', borderRadius: '16px', padding: '24px', border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.4)' },
+    cardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
     cardTitle: { fontSize: '1.25rem', fontWeight: '800', color: '#fff' },
     textBtn: { background: 'transparent', border: 'none', color: '#3b82f6', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem' },
-    
-    listContainer: { display: 'flex', flexDirection: 'column', gap: '12px' }, // Compact gap
-    listItem: {
-        background: 'rgba(255,255,255,0.02)',
-        padding: '12px 16px', // Compact padding
-        borderRadius: '12px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        border: '1px solid rgba(255,255,255,0.02)',
-        transition: 'transform 0.2s',
-        cursor: 'pointer',
-    },
+    listContainer: { display: 'flex', flexDirection: 'column', gap: '12px' },
+    listItem: { background: 'rgba(255,255,255,0.02)', padding: '12px 16px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid rgba(255,255,255,0.02)' },
     itemLead: { display: 'flex', alignItems: 'center', gap: '12px' },
-    circleAvatar: {
-        width: '40px', // Compact
-        height: '40px', // Compact
-        borderRadius: '10px',
-        background: 'linear-gradient(135deg, #1e293b, #0f172a)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#3b82f6',
-        fontWeight: '900',
-        fontSize: '1rem',
-        border: '1px solid rgba(59, 130, 246, 0.2)',
-    },
+    circleAvatar: { width: '40px', height: '40px', borderRadius: '10px', background: 'linear-gradient(135deg, #1e293b, #0f172a)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', fontWeight: '900', border: '1px solid rgba(59, 130, 246, 0.2)' },
     itemTitle: { display: 'block', fontWeight: '700', color: '#e2e8f0', fontSize: '0.9rem' },
-    itemSub: { display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: '500' },
-    itemEnd: { textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '2px' },
-    itemPrice: { fontWeight: '900', color: '#10b981', fontSize: '1rem' },
-    statusBadge: {
-        fontSize: '0.65rem',
-        fontWeight: '800',
-        padding: '4px 8px',
-        background: '#10b98115',
-        color: '#10b981',
-        borderRadius: '6px',
-        textTransform: 'uppercase',
-    },
-
+    itemSub: { display: 'block', fontSize: '0.75rem', color: '#64748b' },
+    itemEnd: { textAlign: 'right', display: 'flex', flexDirection: 'column' },
+    itemPrice: { fontWeight: '900', color: '#10b981' },
+    statusBadge: { fontSize: '0.65rem', fontWeight: '800', padding: '4px 8px', background: '#10b98115', color: '#10b981', borderRadius: '6px', textTransform: 'uppercase' },
     tableHeader: { marginBottom: '16px' },
     tableFilters: { display: 'flex', gap: '12px' },
-    searchBox: {
-        flex: 1,
-        background: 'rgba(255,255,255,0.02)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: '10px',
-        padding: '8px 14px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-    },
+    searchBox: { flex: 1, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '10px' },
     tableInput: { background: 'transparent', border: 'none', color: '#fff', outline: 'none', width: '100%', fontSize: '0.9rem' },
-    filterBtn: {
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        color: '#fff',
-        padding: '8px 16px',
-        borderRadius: '10px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        fontWeight: '600',
-        cursor: 'pointer',
-        fontSize: '0.9rem'
-    },
-    table: { width: '100%', borderCollapse: 'separate', borderSpacing: '0 4px' }, // Compact spacing
+    filterBtn: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', padding: '8px 16px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600' },
+    table: { width: '100%', borderCollapse: 'separate', borderSpacing: '0 4px' },
     tableHeadRow: { textAlign: 'left', color: '#64748b', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase' },
-    tableRow: { background: 'rgba(255,255,255,0.02)', transition: 'background 0.2s' },
+    tableRow: { background: 'rgba(255,255,255,0.02)' },
     userNameGroup: { display: 'flex', flexDirection: 'column' },
     mainName: { fontWeight: '700', color: '#fff', fontSize: '0.9rem' },
     subName: { fontSize: '0.75rem', color: '#64748b' },
     routeGroup: { display: 'flex', flexDirection: 'column' },
     routeName: { fontWeight: '700', color: '#fff', fontSize: '0.9rem' },
     routeSub: { fontSize: '0.75rem', color: '#64748b' },
-
     ticketsGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' },
-    ticketCard: {
-        background: '#0f141c',
-        borderRadius: '16px',
-        padding: '20px',
-        border: '1px solid rgba(255,255,255,0.05)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-    },
-    managementForm: {
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '16px',
-        marginTop: '10px',
-    },
+    ticketCard: { background: '#0f141c', borderRadius: '16px', padding: '20px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '12px' },
+    managementForm: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '10px' },
     ticketHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
     priorityBadge: { fontSize: '0.65rem', fontWeight: '900', padding: '4px 8px', borderRadius: '6px', textTransform: 'uppercase' },
-    ticketDate: { fontSize: '0.75rem', color: '#475569', fontWeight: '600' },
-    ticketSubject: { fontSize: '1.1rem', fontWeight: '800', color: '#fff', margin: 0 },
+    ticketDate: { fontSize: '0.75rem', color: '#475569' },
+    ticketSubject: { fontSize: '1.1rem', fontWeight: '800', color: '#fff' },
     ticketMessage: { color: '#94a3b8', fontSize: '0.9rem', lineHeight: '1.5' },
     ticketUser: { display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px' },
-    avatarMini: { width: '28px', height: '28px', borderRadius: '8px', background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', color: '#fff', fontSize: '0.8rem' },
+    avatarMini: { width: '28px', height: '28px', borderRadius: '8px', background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '0.8rem' },
     userInfoMini: { display: 'flex', flexDirection: 'column' },
     userNameMini: { fontSize: '0.85rem', fontWeight: '700', color: '#e2e8f0' },
     userEmailMini: { fontSize: '0.7rem', color: '#64748b' },
     ticketActions: { display: 'flex', gap: '10px', marginTop: 'auto' },
-    ticketSelect: { flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', padding: '6px', outline: 'none', fontSize: '0.9rem' },
-    actionBtn: { background: '#3b82f6', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '0.9rem' },
-
-    emptyState: { textAlign: 'center', color: '#475569', padding: '32px', fontSize: '0.95rem', fontWeight: '500', fontStyle: 'italic' },
-    
-    // New Form Styles
+    ticketSelect: { flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', padding: '6px' },
+    actionBtn: { background: '#3b82f6', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' },
+    emptyState: { textAlign: 'center', color: '#475569', padding: '32px', fontSize: '0.95rem' },
     inputGroupCompact: { display: 'flex', flexDirection: 'column' },
-    inputLabel: { fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8', marginBottom: '6px', display: 'block' },
-    formInput: {
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: '8px', // Sharper corners
-        padding: '10px 14px', // Compact padding
-        color: '#fff',
-        fontSize: '0.9rem',
-        outline: 'none',
-        transition: 'border-color 0.2s',
-        width: '100%',
-    },
-    modalOverlay: {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0,0,0,0.85)',
-        backdropFilter: 'blur(10px)',
-        zIndex: 10000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px'
-    },
-    modalContent: {
-        background: '#0f141c',
-        padding: '40px',
-        borderRadius: '32px',
-        width: '100%',
-        maxWidth: '450px',
-        border: '1px solid rgba(255,255,255,0.1)',
-        boxShadow: '0 30px 60px rgba(0,0,0,0.8)',
-        textAlign: 'center'
-    }
+    inputLabel: { fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8', marginBottom: '6px' },
+    formInput: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px 14px', color: '#fff', fontSize: '0.9rem', outline: 'none', width: '100%' },
+    modalOverlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' },
+    modalContent: { background: '#0f141c', padding: '40px', borderRadius: '32px', maxWidth: '450px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 30px 60px rgba(0,0,0,0.8)', textAlign: 'center' }
 };
 
 export default AdminDashboard;
-

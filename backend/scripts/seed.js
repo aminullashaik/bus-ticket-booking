@@ -24,12 +24,12 @@ const seedData = async () => {
         // 1. Create Admin User
         const admin = await User.create({
             name: 'Elite Admin',
-            email: 'aminullshaik18@gmail.com',
+            email: 'aminullashaik18@gmail.com',
             password: 'Ameen@7862',
             secretPin: '1234', // Default recovery pin
             role: 'admin'
         });
-        console.log('✅ Admin Created [aminullshaik18@gmail.com / Ameen@7862]');
+        console.log('✅ Admin Created [aminullashaik18@gmail.com / Ameen@7862]');
 
         // 2. Create Sample User
         await User.create({
