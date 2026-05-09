@@ -16,11 +16,16 @@ import {
     Search,
     Filter,
     Trash2,
-    Plus
+    Plus,
+    Hospital,
+    Hotel,
+    Landmark,
+    Map as MapIcon
 } from 'lucide-react';
 import api from '../utils/api';
 import { motion } from 'framer-motion';
 import PremiumBackButton from '../components/PremiumBackButton';
+import LiveFleetMap from '../components/LiveFleetMap';
 import { useTranslation } from '../utils/LanguageContext';
 
 const AdminDashboard = ({ initialTab = 'overview' }) => {
@@ -170,6 +175,30 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
 
     return (
         <div style={styles.dashboardWrapper}>
+            {/* TAB SELECTOR */}
+            <div style={{ display: 'flex', gap: '15px', marginBottom: '30px', overflowX: 'auto', paddingBottom: '10px' }}>
+                {['overview', 'bookings', 'buses', 'routes', 'schedules', 'support', 'tracking'].map(tab => (
+                    <button 
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        style={{
+                            padding: '10px 20px',
+                            borderRadius: '12px',
+                            border: '1px solid',
+                            borderColor: activeTab === tab ? '#3b82f6' : 'rgba(255,255,255,0.05)',
+                            background: activeTab === tab ? '#3b82f615' : '#0f141c',
+                            color: activeTab === tab ? '#3b82f6' : '#64748b',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            textTransform: 'capitalize',
+                            whiteSpace: 'nowrap'
+                        }}
+                    >
+                        {tab === 'tracking' ? 'Live Tracking' : tab}
+                    </button>
+                ))}
+            </div>
+
             {/* OTP MODAL */}
             {otpModal && (
                 <div style={styles.modalOverlay}>
@@ -407,9 +436,9 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                 </div>
             )}
 
+            {/* BUSES TAB */}
             {activeTab === 'buses' && (
                 <div style={styles.tabContent}>
-                    <PremiumBackButton to="/admin" label={t('back_to_dashboard') || "Back to Dashboard"} />
                     <div style={styles.header}>
                         <h2 style={styles.pageTitle}>{t('bus_fleet_management')}</h2>
                         <p style={styles.subTitle}>{t('register_fleet')}</p>
@@ -462,9 +491,9 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                 </div>
             )}
 
+            {/* ROUTES TAB */}
             {activeTab === 'routes' && (
                 <div style={styles.tabContent}>
-                    <PremiumBackButton to="/admin" label={t('back_to_dashboard') || "Back to Dashboard"} />
                     <div style={styles.header}>
                         <h2 style={styles.pageTitle}>{t('routes_management')}</h2>
                         <p style={styles.subTitle}>{t('define_travel_routes') || 'Define travel routes and reaching points'}</p>
@@ -472,30 +501,13 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
 
                     <div style={{...styles.card, marginBottom: '20px'}}>
                         <h3 style={styles.cardTitle}>{t('create_new_route')}</h3>
-                        <form onSubmit={handleCreateRoute} className="admin-grid-3">
-                            <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>{t('source_city')}</label>
-                                <input placeholder="e.g. Hyderabad" value={routeForm.source} onChange={e => setRouteForm({...routeForm, source: e.target.value})} className="admin-input-premium" required />
-                            </div>
-                            <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>{t('destination_city')}</label>
-                                <input placeholder="e.g. Bangalore" value={routeForm.destination} onChange={e => setRouteForm({...routeForm, destination: e.target.value})} className="admin-input-premium" required />
-                            </div>
-                            <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>{t('boarding_point')}</label>
-                                <input placeholder="e.g. MGBS Terminal" value={routeForm.departurePoint} onChange={e => setRouteForm({...routeForm, departurePoint: e.target.value})} className="admin-input-premium" required />
-                            </div>
-                            <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>{t('dropping_point')}</label>
-                                <input placeholder="e.g. Majestic Stand" value={routeForm.arrivalPoint} onChange={e => setRouteForm({...routeForm, arrivalPoint: e.target.value})} className="admin-input-premium" required />
-                            </div>
-                            <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>{t('distance_km')}</label>
-                                <input type="number" placeholder="0" value={routeForm.distance} onChange={e => setRouteForm({...routeForm, distance: e.target.value})} className="admin-input-premium" required />
-                            </div>
-                            <div style={{ display: 'flex' }}>
-                                <button className="btn btn-primary" style={{width: '100%', height: '48px', fontSize: '1rem'}}>+ {t('create_route')}</button>
-                            </div>
+                        <form onSubmit={handleCreateRoute} style={styles.managementForm}>
+                            <input placeholder={t('source_city')} value={routeForm.source} onChange={e => setRouteForm({...routeForm, source: e.target.value})} style={styles.formInput} required />
+                            <input placeholder={t('destination_city')} value={routeForm.destination} onChange={e => setRouteForm({...routeForm, destination: e.target.value})} style={styles.formInput} required />
+                            <input placeholder={t('boarding_point')} value={routeForm.departurePoint} onChange={e => setRouteForm({...routeForm, departurePoint: e.target.value})} style={styles.formInput} required />
+                            <input placeholder={t('dropping_point')} value={routeForm.arrivalPoint} onChange={e => setRouteForm({...routeForm, arrivalPoint: e.target.value})} style={styles.formInput} required />
+                            <input type="number" placeholder={t('distance_km')} value={routeForm.distance} onChange={e => setRouteForm({...routeForm, distance: e.target.value})} style={styles.formInput} required />
+                            <button className="btn btn-primary" style={{gridColumn: 'span 2'}}>{t('create_route')}</button>
                         </form>
                     </div>
 
@@ -503,8 +515,8 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                         <table style={styles.table}>
                             <thead>
                                 <tr style={styles.tableHeadRow}>
-                                    <th>{t('from') || 'FROM (SOURCE)'}</th>
-                                    <th>{t('to') || 'TO (DESTINATION)'}</th>
+                                    <th>{t('from') || 'FROM'}</th>
+                                    <th>{t('to') || 'TO'}</th>
                                     <th>{t('distance') || 'DISTANCE'}</th>
                                     <th>{t('action')}</th>
                                 </tr>
@@ -512,18 +524,8 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                             <tbody>
                                 {routes.map(r => (
                                     <tr key={r._id} style={styles.tableRow}>
-                                        <td>
-                                            <div style={styles.routeGroup}>
-                                                <span style={styles.routeName}>{r.source}</span>
-                                                <span style={styles.routeSub}>{r.departurePoint}</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div style={styles.routeGroup}>
-                                                <span style={styles.routeName}>{r.destination}</span>
-                                                <span style={styles.routeSub}>{r.arrivalPoint}</span>
-                                            </div>
-                                        </td>
+                                        <td>{r.source} ({r.departurePoint})</td>
+                                        <td>{r.destination} ({r.arrivalPoint})</td>
                                         <td>{r.distance} km</td>
                                         <td>
                                             <button onClick={() => handleDeleteRoute(r._id)} style={{...styles.textBtn, color: '#ef4444'}}>
@@ -538,9 +540,9 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                 </div>
             )}
 
+            {/* SCHEDULES TAB */}
             {activeTab === 'schedules' && (
                 <div style={styles.tabContent}>
-                    <PremiumBackButton to="/admin" label={t('back_to_dashboard') || "Back to Dashboard"} />
                     <div style={styles.header}>
                         <h2 style={styles.pageTitle}>{t('schedules_management')}</h2>
                         <p style={styles.subTitle}>{t('plan_schedules')}</p>
@@ -548,38 +550,19 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
 
                     <div style={{...styles.card, marginBottom: '20px'}}>
                         <h3 style={styles.cardTitle}>{t('publish_new_schedule')}</h3>
-                        <form onSubmit={handleCreateSchedule} className="admin-grid-3">
-                            <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>{t('select_bus')}</label>
-                                <select value={scheduleForm.bus} onChange={e => setScheduleForm({...scheduleForm, bus: e.target.value})} className="admin-input-premium" required>
-                                    <option value="">{t('choose_bus') || 'Choose Bus...'}</option>
-                                    {buses.map(b => (
-                                        <option key={b._id} value={b._id}>{b.operatorName} - {b.busNumber}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>{t('select_route')}</label>
-                                <select value={scheduleForm.route} onChange={e => setScheduleForm({...scheduleForm, route: e.target.value})} className="admin-input-premium" required>
-                                    <option value="">{t('choose_route') || 'Choose Route...'}</option>
-                                    {routes.map(r => (
-                                        <option key={r._id} value={r._id}>{r.source} ➝ {r.destination}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>{t('departure_time')}</label>
-                                <input type="datetime-local" value={scheduleForm.departureTime} onChange={e => setScheduleForm({...scheduleForm, departureTime: e.target.value})} className="admin-input-premium" required />
-                            </div>
-                            <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>{t('arrival_time')}</label>
-                                <input type="datetime-local" value={scheduleForm.arrivalTime} onChange={e => setScheduleForm({...scheduleForm, arrivalTime: e.target.value})} className="admin-input-premium" required />
-                            </div>
-                            <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>{t('ticket_price')}</label>
-                                <input type="number" placeholder="e.g. 1500" value={scheduleForm.price} onChange={e => setScheduleForm({...scheduleForm, price: e.target.value})} className="admin-input-premium" required />
-                            </div>
-                            <button className="btn btn-primary" style={{width: '100%', height: '48px', fontSize: '1rem'}}>+ {t('publish_schedule')}</button>
+                        <form onSubmit={handleCreateSchedule} style={styles.managementForm}>
+                            <select value={scheduleForm.bus} onChange={e => setScheduleForm({...scheduleForm, bus: e.target.value})} style={styles.formInput} required>
+                                <option value="">{t('choose_bus') || 'Choose Bus...'}</option>
+                                {buses.map(b => <option key={b._id} value={b._id}>{b.operatorName} - {b.busNumber}</option>)}
+                            </select>
+                            <select value={scheduleForm.route} onChange={e => setScheduleForm({...scheduleForm, route: e.target.value})} style={styles.formInput} required>
+                                <option value="">{t('choose_route') || 'Choose Route...'}</option>
+                                {routes.map(r => <option key={r._id} value={r._id}>{r.source} ➝ {r.destination}</option>)}
+                            </select>
+                            <input type="datetime-local" value={scheduleForm.departureTime} onChange={e => setScheduleForm({...scheduleForm, departureTime: e.target.value})} style={styles.formInput} required />
+                            <input type="datetime-local" value={scheduleForm.arrivalTime} onChange={e => setScheduleForm({...scheduleForm, arrivalTime: e.target.value})} style={styles.formInput} required />
+                            <input type="number" placeholder={t('ticket_price')} value={scheduleForm.price} onChange={e => setScheduleForm({...scheduleForm, price: e.target.value})} style={styles.formInput} required />
+                            <button className="btn btn-primary" style={{gridColumn: 'span 2'}}>{t('publish_schedule')}</button>
                         </form>
                     </div>
 
@@ -587,9 +570,8 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                         <table style={styles.table}>
                             <thead>
                                 <tr style={styles.tableHeadRow}>
-                                    <th>{t('bus') || 'BUS'}</th>
-                                    <th>{t('route') || 'ROUTE'}</th>
-                                    <th>{t('price') || 'PRICE'}</th>
+                                    <th>{t('bus')}</th>
+                                    <th>{t('route')}</th>
                                     <th>{t('status')}</th>
                                     <th>{t('action')}</th>
                                 </tr>
@@ -597,48 +579,50 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                             <tbody>
                                 {schedules.map(s => (
                                     <tr key={s._id} style={styles.tableRow}>
+                                        <td>{s.bus?.operatorName} ({s.bus?.busNumber})</td>
+                                        <td>{s.route?.source} ➝ {s.route?.destination}</td>
+                                        <td>{s.status || 'Scheduled'}</td>
                                         <td>
-                                            <div style={styles.routeGroup}>
-                                                <span style={styles.routeName}>{s.bus?.operatorName}</span>
-                                                <span style={styles.routeSub}>{s.bus?.busNumber}</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div style={styles.routeGroup}>
-                                                <span style={styles.routeName}>{s.route?.source || 'Unknown'} ➝ {s.route?.destination || 'Unknown'}</span>
-                                                <span style={styles.routeSub}>{s.departureTime ? new Date(s.departureTime).toLocaleString() : 'N/A'}</span>
-                                            </div>
-                                        </td>
-                                        <td style={{fontWeight: '900', color: '#10b981'}}>₹{s.price}</td>
-                                        <td>
-                                            <span style={{
-                                                ...styles.statusBadge,
-                                                background: s.status === 'Ongoing' ? '#3b82f615' : '#10b98115',
-                                                color: s.status === 'Ongoing' ? '#3b82f6' : '#10b981'
-                                            }}>{s.status || 'Scheduled'}</span>
-                                        </td>
-                                        <td>
-                                            <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
+                                            <div style={{display: 'flex', gap: '10px'}}>
                                                 {s.status === 'Scheduled' && (
-                                                    <button 
-                                                        onClick={() => { setSelectedSchedule(s); setOtpModal(true); }}
-                                                        style={{...styles.actionBtn, padding: '4px 10px', fontSize: '0.75rem'}}
-                                                    >
-                                                        {t('start_ride') || 'Start Ride'}
-                                                    </button>
+                                                    <button onClick={() => { setSelectedSchedule(s); setOtpModal(true); }} style={{...styles.actionBtn, padding: '4px 10px', fontSize: '0.75rem'}}>{t('start_ride')}</button>
                                                 )}
-                                                {s.status === 'Ongoing' && (
-                                                    <span style={{fontSize: '0.7rem', color: '#3b82f6', fontWeight: '700'}}>{t('trip_live') || 'LIVE'}</span>
-                                                )}
-                                                <button onClick={() => handleDeleteSchedule(s._id)} style={{...styles.textBtn, color: '#ef4444'}}>
-                                                    <Trash2 size={16} />
-                                                </button>
+                                                <button onClick={() => handleDeleteSchedule(s._id)} style={{...styles.textBtn, color: '#ef4444'}}><Trash2 size={16} /></button>
                                             </div>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            )}
+
+            {/* LIVE TRACKING TAB */}
+            {activeTab === 'tracking' && (
+                <div style={styles.tabContent}>
+                    <div style={styles.header}>
+                        <h2 style={styles.pageTitle}>Live Fleet Tracking</h2>
+                        <p style={styles.subTitle}>Real-time GPS positioning and safety highlighting</p>
+                    </div>
+                    <div style={styles.card}>
+                        <LiveFleetMap />
+                    </div>
+                    <div style={styles.statsGrid}>
+                        <div style={styles.statCard}>
+                            <div style={{...styles.statIcon, background: '#ef444415', color: '#ef4444'}}><Hospital size={24} /></div>
+                            <div style={styles.statInfo}>
+                                <span style={styles.statLabel}>Emergency Points</span>
+                                <span style={styles.statValue}>12 Active</span>
+                            </div>
+                        </div>
+                        <div style={styles.statCard}>
+                            <div style={{...styles.statIcon, background: '#f59e0b15', color: '#f59e0b'}}><Hotel size={24} /></div>
+                            <div style={styles.statInfo}>
+                                <span style={styles.statLabel}>Partner Hotels</span>
+                                <span style={styles.statValue}>8 Active</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
@@ -659,7 +643,6 @@ const styles = {
     statLabel: { fontSize: '0.85rem', color: '#64748b', fontWeight: '700', textTransform: 'uppercase' },
     statValue: { fontSize: '1.8rem', fontWeight: '900', color: '#fff' },
     statTrend: { fontSize: '0.75rem', color: '#10b981', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '700' },
-
     contentGrid: { display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '32px' },
     card: { background: '#0f141c', borderRadius: '16px', padding: '24px', border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.4)' },
     cardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
@@ -705,8 +688,6 @@ const styles = {
     ticketSelect: { flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', padding: '6px' },
     actionBtn: { background: '#3b82f6', color: '#fff', border: 'none', padding: '6px 16px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' },
     emptyState: { textAlign: 'center', color: '#475569', padding: '32px', fontSize: '0.95rem' },
-    inputGroupCompact: { display: 'flex', flexDirection: 'column' },
-    inputLabel: { fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8', marginBottom: '6px' },
     formInput: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px 14px', color: '#fff', fontSize: '0.9rem', outline: 'none', width: '100%' },
     modalOverlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' },
     modalContent: { background: '#0f141c', padding: '40px', borderRadius: '32px', maxWidth: '450px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 30px 60px rgba(0,0,0,0.8)', textAlign: 'center' }
