@@ -14,13 +14,15 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
+// Environment Variable Validation
+if (!process.env.MONGO_URI || !process.env.JWT_SECRET) {
+  console.error('FATAL ERROR: MONGO_URI or JWT_SECRET is not defined.');
+  process.exit(1);
+}
+
 // Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:5173', 
-    'http://127.0.0.1:5173',
-    'https://bus-ticket-booking-frontend-as8v.onrender.com' // Your Render Frontend
-  ],
+  origin: '*', // Allow all origins in production for stability
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
