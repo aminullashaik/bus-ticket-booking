@@ -4,16 +4,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     AlertCircle, CreditCard, Smartphone, Globe, ShieldCheck, 
     Lock, CheckCircle, ChevronRight, Info, Zap, User, Phone, Clock,
-    CreditCard as CardIcon
+    CreditCard as CardIcon, ArrowRight
 } from 'lucide-react';
 import api from '../utils/api';
 import paymentQr from '../assets/payment-qr.jpg';
 import PremiumBackButton from '../components/PremiumBackButton';
+import { useTranslation } from '../utils/LanguageContext';
 
 const PaymentPage = () => {
+    const { t } = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
     const { schedule, seats, totalAmount } = location.state || {};
+    const operatorName = schedule?.bus?.operatorName || 'Exclusive Fleet';
+    const destination = schedule?.route?.destination || 'Destination';
+    const arrivalTime = schedule?.arrivalTime ? new Date(schedule.arrivalTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'TBD';
 
     const [paymentMethod, setPaymentMethod] = useState('card');
     const [loading, setLoading] = useState(false);
@@ -64,11 +69,11 @@ const PaymentPage = () => {
     const [processingMsg, setProcessingMsg] = useState('');
 
     const STEPS = [
-        "Encrypting Transaction Data...",
-        "Connecting to Secure Gateway...",
-        "Verifying Payment Credentials...",
-        "Waiting for Bank Authorization...",
-        "Transaction Approved!"
+        t('step_encrypting'),
+        t('step_connecting'),
+        t('step_verifying'),
+        t('step_waiting'),
+        t('step_approved')
     ];
 
     const handlePayment = async (e) => {
@@ -76,7 +81,7 @@ const PaymentPage = () => {
         setPaymentError(null);
 
         if (!passengerName || !passengerPhone) {
-            setPaymentError("Identity Verification Required: Please provide Passenger Name and Contact.");
+            setPaymentError(t('identity_verification_required'));
             return;
         }
 
@@ -112,7 +117,7 @@ const PaymentPage = () => {
         } catch (error) {
             setLoading(false);
             setProcessingStep(0);
-            setPaymentError(error.response?.data?.message || 'Gateway Timeout: Unable to authorize transaction.');
+            setPaymentError(error.response?.data?.message || t('gateway_timeout'));
         }
     };
 
@@ -122,7 +127,7 @@ const PaymentPage = () => {
         <div style={styles.pageWrapper}>
             <div className="container" style={{ paddingTop: '100px', paddingBottom: '60px' }}>
                 <div style={{ marginBottom: '32px' }}>
-                    <PremiumBackButton to="/buses" label="Modify Selection" />
+                    <PremiumBackButton to="/search" label={t('modify_selection')} />
                 </div>
 
                 <div style={styles.mainGrid}>
@@ -131,18 +136,18 @@ const PaymentPage = () => {
                         <section style={{ marginBottom: '40px' }}>
                             <div style={styles.sectionHeader}>
                                 <User size={20} color="var(--primary)" />
-                                <h2 style={styles.sectionTitle}>Identity Verification</h2>
+                                <h2 style={styles.sectionTitle}>{t('identity_verification')}</h2>
                             </div>
                             
                             <div className="card-premium glass-effect" style={styles.passengerCard}>
                                 <div style={styles.inputGrid}>
                                     <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Passenger Legal Name</label>
+                                        <label style={styles.label}>{t('passenger_legal_name')}</label>
                                         <div style={styles.inputWrapper}>
                                             <User size={18} color="#64748b" />
                                             <input 
                                                 type="text" 
-                                                placeholder="Executive Name"
+                                                placeholder={t('executive_name')}
                                                 value={passengerName}
                                                 onChange={(e) => setPassengerName(e.target.value)}
                                                 style={styles.input}
@@ -150,12 +155,12 @@ const PaymentPage = () => {
                                         </div>
                                     </div>
                                     <div style={styles.inputGroup}>
-                                        <label style={styles.label}>Direct Contact Number</label>
+                                        <label style={styles.label}>{t('direct_contact_number')}</label>
                                         <div style={styles.inputWrapper}>
                                             <Phone size={18} color="#64748b" />
                                             <input 
                                                 type="text" 
-                                                placeholder="Mobile / Phone"
+                                                placeholder={t('mobile_phone')}
                                                 value={passengerPhone}
                                                 onChange={(e) => setPassengerPhone(e.target.value)}
                                                 style={styles.input}
@@ -166,7 +171,7 @@ const PaymentPage = () => {
 
                                 <div style={styles.deliveryNotice}>
                                     <Zap size={16} color="var(--secondary)" />
-                                    <span>Tickets will be delivered via both **SMS** and **WhatsApp** instantly upon authorization.</span>
+                                    <span>{t('delivery_notice')}</span>
                                 </div>
                             </div>
                         </section>
@@ -175,7 +180,7 @@ const PaymentPage = () => {
                         <section>
                             <div style={styles.sectionHeader}>
                                 <Lock size={20} color="var(--primary)" />
-                                <h2 style={styles.sectionTitle}>Secure Authorization</h2>
+                                <h2 style={styles.sectionTitle}>{t('secure_authorization')}</h2>
                             </div>
 
                             <div className="card-premium" style={{ padding: 0 }}>
@@ -184,19 +189,19 @@ const PaymentPage = () => {
                                         onClick={() => setPaymentMethod('card')}
                                         style={{...styles.tabBtn, borderBottom: paymentMethod === 'card' ? '2px solid var(--primary)' : 'none', color: paymentMethod === 'card' ? '#fff' : 'var(--text-muted)'}}
                                     >
-                                        <CardIcon size={18} /> Credit / Debit
+                                        <CardIcon size={18} /> {t('card_tab')}
                                     </button>
                                     <button 
                                         onClick={() => setPaymentMethod('upi')}
                                         style={{...styles.tabBtn, borderBottom: paymentMethod === 'upi' ? '2px solid var(--primary)' : 'none', color: paymentMethod === 'upi' ? '#fff' : 'var(--text-muted)'}}
                                     >
-                                        <Smartphone size={18} /> UPI / Wallets
+                                        <Smartphone size={18} /> {t('upi_tab')}
                                     </button>
                                     <button 
                                         onClick={() => setPaymentMethod('netbanking')}
                                         style={{...styles.tabBtn, borderBottom: paymentMethod === 'netbanking' ? '2px solid var(--primary)' : 'none', color: paymentMethod === 'netbanking' ? '#fff' : 'var(--text-muted)'}}
                                     >
-                                        <Globe size={18} /> Enterprise Banking
+                                        <Globe size={18} /> {t('banking_tab')}
                                     </button>
                                 </div>
 
@@ -210,7 +215,7 @@ const PaymentPage = () => {
                                     {paymentMethod === 'card' && (
                                         <div style={styles.cardForm}>
                                             <div style={styles.inputGroup}>
-                                                <label style={styles.label}>Card Number</label>
+                                                <label style={styles.label}>{t('card_number')}</label>
                                                 <div style={styles.inputWrapper}>
                                                     <CardIcon size={18} color="#64748b" />
                                                     <input 
@@ -224,7 +229,7 @@ const PaymentPage = () => {
                                             </div>
                                             <div style={{ display: 'flex', gap: '20px' }}>
                                                 <div style={{ flex: 1, ...styles.inputGroup }}>
-                                                    <label style={styles.label}>Valid Thru</label>
+                                                    <label style={styles.label}>{t('valid_thru')}</label>
                                                     <input 
                                                         type="text" 
                                                         placeholder="MM/YY"
@@ -234,7 +239,7 @@ const PaymentPage = () => {
                                                     />
                                                 </div>
                                                 <div style={{ flex: 1, ...styles.inputGroup }}>
-                                                    <label style={styles.label}>CVV</label>
+                                                    <label style={styles.label}>{t('cvv')}</label>
                                                     <input 
                                                         type="password" 
                                                         placeholder="•••"
@@ -250,7 +255,7 @@ const PaymentPage = () => {
                                                 className="btn btn-primary" 
                                                 style={styles.authBtn}
                                             >
-                                                {loading ? "Authorizing Gateway..." : `Authorize ₹${totalAmount}`}
+                                                {loading ? t('authorizing_gateway') : `${t('authorize')} ₹${totalAmount}`}
                                             </button>
                                         </div>
                                     )}
@@ -261,17 +266,17 @@ const PaymentPage = () => {
                                                 {!qrGenerated ? (
                                                     <motion.div key="gen" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={styles.upiInitial}>
                                                         <div style={styles.upiIcon}><Smartphone size={40} /></div>
-                                                        <h3>Instant UPI Gateway</h3>
-                                                        <p>Scan the dynamic QR code with any premium UPI application.</p>
-                                                        <button onClick={handleGenerateQR} className="btn btn-primary" style={{ height: '60px', padding: '0 40px', borderRadius: '15px' }}>Generate Secure QR</button>
+                                                        <h3>{t('upi_gateway')}</h3>
+                                                        <p>{t('scan_qr')}</p>
+                                                        <button onClick={handleGenerateQR} className="btn btn-primary" style={{ height: '60px', padding: '0 40px', borderRadius: '15px' }}>{t('generate_secure_qr')}</button>
                                                     </motion.div>
                                                 ) : (
                                                     <motion.div key="qr" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} style={styles.qrArea}>
                                                         {isExpired ? (
                                                             <div style={styles.expiredState}>
                                                                 <Clock size={48} color="#ef4444" />
-                                                                <p>Session Expired</p>
-                                                                <button onClick={handleGenerateQR} style={styles.retryBtn}>Refresh Session</button>
+                                                                <p>{t('session_expired')}</p>
+                                                                <button onClick={handleGenerateQR} style={styles.retryBtn}>{t('refresh_session')}</button>
                                                             </div>
                                                         ) : (
                                                             <>
@@ -283,20 +288,20 @@ const PaymentPage = () => {
                                                                     <div style={styles.pulseDot}></div>
                                                                     Valid for: {formatTime(timeLeft)}
                                                                 </div>
-                                                                <div style={styles.upiIdRow}>Merchant ID: <span>9207038758@ybl</span></div>
+                                                                <div style={styles.upiIdRow}>{t('merchant_id')}: <span>9207038758@ybl</span></div>
                                                                 <div style={{ width: '100%', maxWidth: '300px', marginTop: '30px' }}>
-                                                                    <label style={styles.label}>Verify Transaction ID</label>
+                                                                    <label style={styles.label}>{t('verify_txn_id')}</label>
                                                                     <div style={{...styles.inputWrapper, marginTop: '8px', border: '2px solid var(--primary)'}}>
                                                                         <input 
                                                                             type="text" 
-                                                                            placeholder="Ref No. / TXN ID" 
+                                                                            placeholder={t('ref_no')}
                                                                             style={{...styles.input, textAlign: 'center'}}
                                                                             value={upiId}
                                                                             onChange={(e) => setUpiId(e.target.value)}
                                                                         />
                                                                     </div>
                                                                     <button onClick={handlePayment} disabled={loading} className="btn btn-primary" style={{ width: '100%', height: '60px', borderRadius: '15px', marginTop: '15px' }}>
-                                                                        {loading ? "Verifying..." : "Confirm Payment"}
+                                                                        {loading ? t('verifying') : t('confirm_payment')}
                                                                     </button>
                                                                 </div>
                                                             </>
@@ -310,8 +315,8 @@ const PaymentPage = () => {
                                     {paymentMethod === 'netbanking' && (
                                         <div style={styles.upiInitial}>
                                             <Globe size={40} color="var(--primary)" />
-                                            <h3 style={{ marginTop: '20px' }}>Enterprise Bank Connect</h3>
-                                            <p>Select your tier-1 bank to complete authorization on their portal.</p>
+                                            <h3 style={{ marginTop: '20px' }}>{t('enterprise_bank_connect')}</h3>
+                                            <p>{t('enterprise_bank_desc')}</p>
                                             <select style={styles.bankSelect}>
                                                 <option>HDFC Executive Banking</option>
                                                 <option>ICICI Corporate Portal</option>
@@ -319,7 +324,7 @@ const PaymentPage = () => {
                                                 <option>Axis Platinum Banking</option>
                                             </select>
                                             <button onClick={handlePayment} className="btn btn-primary" style={{ height: '60px', padding: '0 40px', borderRadius: '15px', marginTop: '20px' }}>
-                                                {loading ? "Redirecting..." : "Open Bank Portal"}
+                                                {loading ? t('redirecting') : t('open_bank_portal')}
                                             </button>
                                         </div>
                                     )}
@@ -332,45 +337,45 @@ const PaymentPage = () => {
                         <div style={styles.summarySticky}>
                             <div className="card-premium glass-effect" style={styles.summaryCard}>
                                 <div style={styles.summaryHeader}>
-                                    <h3 style={{ margin: 0 }}>Executive Summary</h3>
+                                    <h3 style={{ margin: 0 }}>{t('executive_summary')}</h3>
                                     <div style={styles.idBadge}>#{schedule._id.toString().slice(-6).toUpperCase()}</div>
                                 </div>
 
                                 <div style={styles.summaryList}>
                                     <div style={styles.summaryItem}>
-                                        <span style={styles.summaryLabel}>Fleet Operator</span>
-                                        <span style={styles.summaryValue}>{schedule.bus.operatorName}</span>
+                                        <span style={styles.summaryLabel}>{t('operator_name')}</span>
+                                        <span style={styles.summaryValue}>{operatorName}</span>
                                     </div>
                                     <div style={styles.summaryItem}>
-                                        <span style={styles.summaryLabel}>Destination</span>
-                                        <span style={styles.summaryValue}>{schedule.route.destination}</span>
+                                        <span style={styles.summaryLabel}>{t('destination')}</span>
+                                        <span style={styles.summaryValue}>{destination}</span>
                                     </div>
                                     <div style={styles.summaryItem}>
-                                        <span style={styles.summaryLabel}>Confirmed Seats</span>
+                                        <span style={styles.summaryLabel}>{t('selected_seats')}</span>
                                         <span style={{...styles.summaryValue, color: 'var(--primary)'}}>{seats.join(', ')}</span>
                                     </div>
                                     <div style={styles.summaryItem}>
-                                        <span style={styles.summaryLabel}>Scheduled Arrival</span>
-                                        <span style={styles.summaryValue}>{new Date(schedule.arrivalTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                        <span style={styles.summaryLabel}>{t('departure_time')}</span>
+                                        <span style={styles.summaryValue}>{arrivalTime}</span>
                                     </div>
 
                                     <div style={styles.divider} />
 
                                     <div style={styles.totalRow}>
-                                        <span style={styles.totalLabel}>Grand Total</span>
+                                        <span style={styles.totalLabel}>{t('grand_total')}</span>
                                         <span style={styles.totalAmount}>₹{totalAmount}</span>
                                     </div>
                                 </div>
 
                                 <div style={styles.trustRow}>
                                     <ShieldCheck size={14} color="var(--secondary)" />
-                                    <span>PCI-DSS Level 1 Secure</span>
+                                    <span>{t('pci_secure')}</span>
                                 </div>
                             </div>
 
                             <div style={styles.supportBox}>
                                 <Info size={16} color="var(--primary)" />
-                                <p>Need assistance? Our 24/7 Priority Support is available for JBS Elite members.</p>
+                                <p>{t('priority_support_available')}</p>
                             </div>
                         </div>
                     </div>
@@ -388,7 +393,7 @@ const PaymentPage = () => {
                             <div style={styles.lockIcon}><Lock size={24} color="var(--primary)" /></div>
                         </div>
                         <h3 style={styles.processingTitle}>{processingMsg}</h3>
-                        <p style={styles.processingSub}>Do not close your browser window.</p>
+                        <p style={styles.processingSub}>{t('do_not_close_window')}</p>
                         
                         <div style={styles.progressBarBg}>
                             <motion.div 
@@ -399,7 +404,7 @@ const PaymentPage = () => {
                         
                         <div style={styles.secureBadge}>
                             <ShieldCheck size={16} color="#059669" /> 
-                            <span>256-bit SSL Encrypted Connection</span>
+                            <span>{t('ssl_encrypted')}</span>
                         </div>
                     </motion.div>
                 </div>

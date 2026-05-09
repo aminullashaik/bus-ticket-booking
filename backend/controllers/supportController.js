@@ -24,4 +24,19 @@ const updateTicket = async (req, res) => {
     }
 };
 
-module.exports = { getTickets, updateTicket };
+const createTicket = async (req, res) => {
+    try {
+        const { subject, message, priority } = req.body;
+        const ticket = await SupportTicket.create({
+            user: req.user._id,
+            subject,
+            message,
+            priority
+        });
+        res.status(201).json(ticket);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+module.exports = { getTickets, updateTicket, createTicket };

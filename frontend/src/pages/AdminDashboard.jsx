@@ -21,8 +21,10 @@ import {
 import api from '../utils/api';
 import { motion } from 'framer-motion';
 import PremiumBackButton from '../components/PremiumBackButton';
+import { useTranslation } from '../utils/LanguageContext';
 
 const AdminDashboard = ({ initialTab = 'overview' }) => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState(initialTab);
     const [stats, setStats] = useState({ revenue: 0, totalBookings: 0, totalBuses: 0, totalRoutes: 0 });
@@ -36,7 +38,7 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
     // Forms state
     const [busForm, setBusForm] = useState({ busNumber: '', operatorName: '', type: 'AC Seater', totalSeats: 40 });
     const [routeForm, setRouteForm] = useState({ source: '', destination: '', departurePoint: 'Main Stand', arrivalPoint: 'Drop Point', distance: 0 });
-    const [scheduleForm, setScheduleForm] = useState({ busId: '', routeId: '', departureTime: '', arrivalTime: '', price: 0 });
+    const [scheduleForm, setScheduleForm] = useState({ bus: '', route: '', departureTime: '', arrivalTime: '', price: 0 });
 
     useEffect(() => {
        setActiveTab(initialTab === 'overview' ? 'overview' : initialTab);
@@ -67,9 +69,9 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
             const revenue = (bookingsRes.data || []).reduce((sum, b) => sum + (b.totalAmount || 0), 0);
             setStats({
                 revenue,
-                totalBookings: bookingsRes.data.length,
-                totalBuses: busesRes.data.length,
-                totalRoutes: routesRes.data.length
+                totalBookings: (bookingsRes.data || []).length,
+                totalBuses: (busesRes.data || []).length,
+                totalRoutes: (routesRes.data || []).length
             });
         } catch (error) {
             console.error(error);
@@ -109,7 +111,7 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
         e.preventDefault();
         try {
             await api.post('/schedules', scheduleForm);
-            setScheduleForm({ busId: '', routeId: '', departureTime: '', arrivalTime: '', price: 0 });
+            setScheduleForm({ bus: '', route: '', departureTime: '', arrivalTime: '', price: 0 });
             fetchData();
             alert('Schedule added successfully');
         } catch (err) { alert(err.response?.data?.message || 'Failed to add schedule') }
@@ -149,29 +151,81 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
         </div>
     );
 
+    const [otpModal, setOtpModal] = useState(false);
+    const [selectedSchedule, setSelectedSchedule] = useState(null);
+    const [otpInput, setOtpInput] = useState('');
+
+    const handleStartTrip = async (e) => {
+        e.preventDefault();
+        try {
+            await api.put(`/schedules/${selectedSchedule._id}/start`, { otp: otpInput });
+            setOtpModal(false);
+            setOtpInput('');
+            fetchData();
+            alert('Trip started! Live tracking is now active.');
+        } catch (err) {
+            alert(err.response?.data?.message || 'Failed to start trip. Check OTP.');
+        }
+    };
+
     return (
         <div style={styles.dashboardWrapper}>
+            {/* OTP MODAL */}
+            {otpModal && (
+                <div style={styles.modalOverlay}>
+                    <div style={styles.modalContent}>
+                        <div style={{...styles.circleAvatar, margin: '0 auto 20px', width: '60px', height: '60px', background: '#3b82f620'}}><Users size={30} /></div>
+                        <h3 style={{...styles.cardTitle, marginBottom: '10px'}}>{t('trip_verification') || 'Trip Verification'}</h3>
+                        <p style={{color: '#94a3b8', fontSize: '0.9rem', marginBottom: '20px'}}>
+                            Driver has assessed all tickets and is ready to start. <br/>
+                            Ask driver for the verification OTP.
+                        </p>
+                        
+                        <div style={{background: 'rgba(59, 130, 246, 0.1)', padding: '15px', borderRadius: '12px', marginBottom: '20px', border: '1px dashed rgba(59, 130, 246, 0.3)'}}>
+                            <span style={{fontSize: '0.75rem', color: '#3b82f6', fontWeight: '800', display: 'block', marginBottom: '5px'}}>DRIVER SAYS OTP IS:</span>
+                            <span style={{fontSize: '1.5rem', fontWeight: '900', color: '#fff', letterSpacing: '4px'}}>{selectedSchedule?.otp}</span>
+                        </div>
+
+                        <form onSubmit={handleStartTrip}>
+                            <input 
+                                type="text" 
+                                placeholder="Verify OTP here" 
+                                value={otpInput} 
+                                onChange={e => setOtpInput(e.target.value)} 
+                                style={{...styles.formInput, textAlign: 'center', fontSize: '1.2rem', fontWeight: '800', marginBottom: '20px'}}
+                                maxLength={4}
+                                required
+                            />
+                            <div style={{display: 'flex', gap: '12px'}}>
+                                <button type="button" onClick={() => setOtpModal(false)} style={{...styles.filterBtn, flex: 1}}>{t('cancel')}</button>
+                                <button type="submit" style={{...styles.actionBtn, flex: 1, height: '48px'}}>{t('start_ride') || 'Start Ride'}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* OVERVIEW TAB */}
             {activeTab === 'overview' && (
                 <div style={styles.tabContent}>
                     <div style={styles.header}>
-                        <h2 style={styles.pageTitle}>Dashboard Overview</h2>
-                        <p style={styles.subTitle}>Real-time performance metrics</p>
+                        <h2 style={styles.pageTitle}>{t('dashboard_overview')}</h2>
+                        <p style={styles.subTitle}>{t('real_time_metrics')}</p>
                     </div>
 
                     <div style={styles.statsGrid}>
-                        <StatCard icon={IndianRupee} label="Total Revenue" value={`₹${stats.revenue}`} color="#3b82f6" trend="12% from last month" />
-                        <StatCard icon={Ticket} label="Total Bookings" value={stats.totalBookings} color="#10b981" trend="8.4% growth" />
-                        <StatCard icon={Bus} label="Active Fleet" value={stats.totalBuses} color="#f59e0b" />
-                        <StatCard icon={TrendingUp} label="Total Routes" value={stats.totalRoutes} color="#8b5cf6" />
+                        <StatCard icon={IndianRupee} label={t('total_revenue')} value={`₹${stats.revenue}`} color="#3b82f6" trend="12% from last month" />
+                        <StatCard icon={Ticket} label={t('total_bookings')} value={stats.totalBookings} color="#10b981" trend="8.4% growth" />
+                        <StatCard icon={Bus} label={t('active_fleet')} value={stats.totalBuses} color="#f59e0b" />
+                        <StatCard icon={TrendingUp} label={t('total_routes')} value={stats.totalRoutes} color="#8b5cf6" />
                     </div>
 
                     <div style={styles.contentGrid}>
                         {/* RECENT BOOKINGS PREVIEW */}
                         <div style={styles.card}>
                             <div style={styles.cardHeader}>
-                                <h3 style={styles.cardTitle}>Recent Bookings</h3>
-                                <button onClick={() => setActiveTab('bookings')} style={styles.textBtn}>View All</button>
+                                <h3 style={styles.cardTitle}>{t('recent_bookings')}</h3>
+                                <button onClick={() => setActiveTab('bookings')} style={styles.textBtn}>{t('view_all')}</button>
                             </div>
                             <div style={styles.listContainer}>
                                 {bookings.slice(0, 5).map(b => (
@@ -179,40 +233,40 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                                         <div style={styles.itemLead}>
                                             <div style={styles.circleAvatar}>{b.user?.name?.charAt(0)}</div>
                                             <div>
-                                                <span style={styles.itemTitle}>{b.user?.name}</span>
-                                                <span style={styles.itemSub}>{b.schedule?.bus?.operatorName}</span>
+                                                <span style={styles.itemTitle}>{b.user?.name || 'Unknown User'}</span>
+                                                <span style={styles.itemSub}>{b.schedule?.bus?.operatorName || 'Unknown Operator'}</span>
                                             </div>
                                         </div>
                                         <div style={styles.itemEnd}>
                                             <span style={styles.itemPrice}>₹{b.totalAmount}</span>
-                                            <span style={styles.statusBadge}>Booked</span>
+                                            <span style={styles.statusBadge}>{t('booked')}</span>
                                         </div>
                                     </div>
                                 ))}
-                                {bookings.length === 0 && <p style={styles.emptyState}>No bookings recorded.</p>}
+                                {bookings.length === 0 && <p style={styles.emptyState}>{t('no_bookings_recorded') || 'No bookings recorded.'}</p>}
                             </div>
                         </div>
 
                         {/* SUPPORT PREVIEW */}
                         <div style={styles.card}>
                             <div style={styles.cardHeader}>
-                                <h3 style={styles.cardTitle}>Open Tickets</h3>
-                                <button onClick={() => setActiveTab('support')} style={styles.textBtn}>Manage</button>
+                                <h3 style={styles.cardTitle}>{t('open_tickets')}</h3>
+                                <button onClick={() => setActiveTab('support')} style={styles.textBtn}>{t('manage')}</button>
                             </div>
                             <div style={styles.listContainer}>
-                                {tickets.filter(t => t.status === 'open').slice(0, 5).map(t => (
-                                    <div key={t._id} style={styles.listItem}>
+                                {tickets.filter(t_item => t_item.status === 'open').slice(0, 5).map(t_item => (
+                                    <div key={t_item._id} style={styles.listItem}>
                                         <div style={styles.itemLead}>
                                             <div style={{...styles.circleAvatar, background: '#ef444415', color: '#ef4444'}}><AlertCircle size={16} /></div>
                                             <div>
-                                                <span style={styles.itemTitle}>{t.subject}</span>
-                                                <span style={styles.itemSub}>{t.user?.name} • {new Date(t.createdAt).toLocaleDateString()}</span>
+                                                <span style={styles.itemTitle}>{t_item.subject}</span>
+                                                <span style={styles.itemSub}>{t_item.user?.name} • {new Date(t_item.createdAt).toLocaleDateString()}</span>
                                             </div>
                                         </div>
                                         <ChevronRight size={16} color="#475569" />
                                     </div>
                                 ))}
-                                {tickets.filter(t => t.status === 'open').length === 0 && <p style={styles.emptyState}>All caught up!</p>}
+                                {tickets.filter(t_item => t_item.status === 'open').length === 0 && <p style={styles.emptyState}>{t('all_caught_up') || 'All caught up!'}</p>}
                             </div>
                         </div>
                     </div>
@@ -223,8 +277,8 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
             {activeTab === 'bookings' && (
                 <div style={styles.tabContent}>
                     <div style={styles.header}>
-                        <h2 style={styles.pageTitle}>Booking Management</h2>
-                        <p style={styles.subTitle}>Monitor and manage all user reservations</p>
+                        <h2 style={styles.pageTitle}>{t('booking_management')}</h2>
+                        <p style={styles.subTitle}>{t('monitor_reservations')}</p>
                     </div>
 
                     <div style={styles.card}>
@@ -232,24 +286,24 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                             <div style={styles.tableFilters}>
                                 <div style={styles.searchBox}>
                                     <Search size={16} color="#64748b" />
-                                    <input type="text" placeholder="Search by ID or Name" style={styles.tableInput} />
+                                    <input type="text" placeholder={t('search_placeholder')} style={styles.tableInput} />
                                 </div>
-                                <button style={styles.filterBtn}><Filter size={16} /> Filter</button>
+                                <button style={styles.filterBtn}><Filter size={16} /> {t('filter')}</button>
                             </div>
                         </div>
 
                         <table style={styles.table}>
                             <thead>
                                 <tr style={styles.tableHeadRow}>
-                                    <th>USER</th>
-                                    <th>PASSENGER</th>
-                                    <th>PHONE</th>
-                                    <th>ROUTE</th>
-                                    <th>JOURNEY DATE</th>
-                                    <th>SEATS</th>
-                                    <th>AMOUNT</th>
-                                    <th>STATUS</th>
-                                    <th>ACTION</th>
+                                    <th>{t('user')}</th>
+                                    <th>{t('passenger')}</th>
+                                    <th>{t('phone')}</th>
+                                    <th>{t('route')}</th>
+                                    <th>{t('journey_date')}</th>
+                                    <th>{t('seats')}</th>
+                                    <th>{t('amount')}</th>
+                                    <th>{t('status')}</th>
+                                    <th>{t('action')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -265,12 +319,12 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                                         <td>{b.passengerPhone} ({b.deliveryMethod?.toUpperCase()})</td>
                                         <td>
                                             <div style={styles.routeGroup}>
-                                                <span style={styles.routeName}>{b.schedule?.route?.source} ➝ {b.schedule?.route?.destination}</span>
-                                                <span style={styles.routeSub}>{b.schedule?.bus?.operatorName}</span>
+                                                <span style={styles.routeName}>{b.schedule?.route?.source || 'Unknown'} ➝ {b.schedule?.route?.destination || 'Unknown'}</span>
+                                                <span style={styles.routeSub}>{b.schedule?.bus?.operatorName || 'Unknown Operator'}</span>
                                             </div>
                                         </td>
-                                        <td>{new Date(b.schedule?.departureTime).toLocaleDateString()}</td>
-                                        <td>{b.seats.join(', ')}</td>
+                                        <td>{b.schedule?.departureTime ? new Date(b.schedule.departureTime).toLocaleDateString() : 'N/A'}</td>
+                                        <td>{b.seats?.join(', ') || ''}</td>
                                         <td style={{fontWeight: '700', color: '#10b981'}}>₹{b.totalAmount}</td>
                                         <td><span style={{
                                             ...styles.statusBadge,
@@ -281,16 +335,16 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                                             {b.status !== 'cancelled' && (
                                                 <button 
                                                     onClick={async () => {
-                                                        if(window.confirm('Are you sure you want to cancel this booking?')) {
+                                                        if(window.confirm(t('confirm_cancel_booking') || 'Are you sure you want to cancel this booking?')) {
                                                             try {
                                                                 await api.put(`/bookings/${b._id}/cancel`);
                                                                 fetchData();
-                                                            } catch (err) { alert('Failed to cancel booking') }
+                                                            } catch (err) { alert(t('failed_cancel_booking') || 'Failed to cancel booking') }
                                                         }
                                                     }}
                                                     style={{...styles.textBtn, color: '#ef4444'}}
                                                 >
-                                                    Cancel
+                                                    {t('cancel')}
                                                 </button>
                                             )}
                                         </td>
@@ -298,7 +352,7 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                                 ))}
                             </tbody>
                         </table>
-                        {bookings.length === 0 && <p style={styles.emptyState}>No bookings found.</p>}
+                        {bookings.length === 0 && <p style={styles.emptyState}>{t('no_bookings_found') || 'No bookings found.'}</p>}
                     </div>
                 </div>
             )}
@@ -307,73 +361,73 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
             {activeTab === 'support' && (
                 <div style={styles.tabContent}>
                     <div style={styles.header}>
-                        <h2 style={styles.pageTitle}>Support Help Desk</h2>
-                        <p style={styles.subTitle}>Resolve user inquiries and issues</p>
+                        <h2 style={styles.pageTitle}>{t('support_help_desk')}</h2>
+                        <p style={styles.subTitle}>{t('resolve_inquiries')}</p>
                     </div>
 
                     <div style={styles.ticketsGrid}>
-                        {tickets.map(t => (
-                            <div key={t._id} style={styles.ticketCard}>
+                        {tickets.map(t_item => (
+                            <div key={t_item._id} style={styles.ticketCard}>
                                 <div style={styles.ticketHeader}>
                                     <span style={{
                                         ...styles.priorityBadge,
-                                        background: t.priority === 'urgent' ? '#ef444415' : '#3b82f615',
-                                        color: t.priority === 'urgent' ? '#ef4444' : '#3b82f6'
+                                        background: t_item.priority === 'urgent' ? '#ef444415' : '#3b82f615',
+                                        color: t_item.priority === 'urgent' ? '#ef4444' : '#3b82f6'
                                     }}>
-                                        {t.priority}
+                                        {t_item.priority === 'urgent' ? t('priority_urgent') : t('priority_standard')}
                                     </span>
-                                    <span style={styles.ticketDate}>{new Date(t.createdAt).toLocaleString()}</span>
+                                    <span style={styles.ticketDate}>{new Date(t_item.createdAt).toLocaleString()}</span>
                                 </div>
-                                <h4 style={styles.ticketSubject}>{t.subject}</h4>
-                                <p style={styles.ticketMessage}>{t.message}</p>
+                                <h4 style={styles.ticketSubject}>{t_item.subject}</h4>
+                                <p style={styles.ticketMessage}>{t_item.message}</p>
                                 <div style={styles.ticketUser}>
-                                    <div style={styles.avatarMini}>{t.user?.name?.charAt(0)}</div>
+                                    <div style={styles.avatarMini}>{t_item.user?.name?.charAt(0)}</div>
                                     <div style={styles.userInfoMini}>
-                                        <span style={styles.userNameMini}>{t.user?.name}</span>
-                                        <span style={styles.userEmailMini}>{t.user?.email}</span>
+                                        <span style={styles.userNameMini}>{t_item.user?.name}</span>
+                                        <span style={styles.userEmailMini}>{t_item.user?.email}</span>
                                     </div>
                                 </div>
                                 <div style={styles.ticketActions}>
                                     <select 
                                         style={styles.ticketSelect} 
-                                        value={t.status}
-                                        onChange={(e) => handleUpdateTicket(t._id, e.target.value)}
+                                        value={t_item.status}
+                                        onChange={(e) => handleUpdateTicket(t_item._id, e.target.value)}
                                     >
-                                        <option value="open">Open</option>
-                                        <option value="in-progress">In Progress</option>
-                                        <option value="resolved">Resolved</option>
-                                        <option value="closed">Closed</option>
+                                        <option value="open">{t('status_open')}</option>
+                                        <option value="in-progress">{t('status_in_progress')}</option>
+                                        <option value="resolved">{t('status_resolved')}</option>
+                                        <option value="closed">{t('status_closed')}</option>
                                     </select>
-                                    <button style={styles.actionBtn}>Reply</button>
+                                    <button style={styles.actionBtn}>{t('reply')}</button>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    {tickets.length === 0 && <p style={styles.emptyState}>No support tickets found.</p>}
+                    {tickets.length === 0 && <p style={styles.emptyState}>{t('no_support_tickets_found') || 'No support tickets found.'}</p>}
                 </div>
             )}
 
             {activeTab === 'buses' && (
                 <div style={styles.tabContent}>
-                    <PremiumBackButton to="/admin" label="Back to Dashboard" />
+                    <PremiumBackButton to="/admin" label={t('back_to_dashboard') || "Back to Dashboard"} />
                     <div style={styles.header}>
-                        <h2 style={styles.pageTitle}>Bus Fleet Management</h2>
-                        <p style={styles.subTitle}>Register and manage your fleet</p>
+                        <h2 style={styles.pageTitle}>{t('bus_fleet_management')}</h2>
+                        <p style={styles.subTitle}>{t('register_fleet')}</p>
                     </div>
 
                     <div style={{...styles.card, marginBottom: '20px'}}>
-                        <h3 style={styles.cardTitle}>Add New Bus</h3>
+                        <h3 style={styles.cardTitle}>{t('add_new_bus')}</h3>
                         <form onSubmit={handleCreateBus} style={styles.managementForm}>
-                            <input placeholder="Bus Number" value={busForm.busNumber} onChange={e => setBusForm({...busForm, busNumber: e.target.value})} style={styles.formInput} required />
-                            <input placeholder="Operator Name" value={busForm.operatorName} onChange={e => setBusForm({...busForm, operatorName: e.target.value})} style={styles.formInput} required />
+                            <input placeholder={t('bus_number')} value={busForm.busNumber} onChange={e => setBusForm({...busForm, busNumber: e.target.value})} style={styles.formInput} required />
+                            <input placeholder={t('operator_name')} value={busForm.operatorName} onChange={e => setBusForm({...busForm, operatorName: e.target.value})} style={styles.formInput} required />
                             <select value={busForm.type} onChange={e => setBusForm({...busForm, type: e.target.value})} style={styles.formInput}>
                                 <option>AC Seater</option>
                                 <option>Non-AC Seater</option>
                                 <option>AC Sleeper</option>
                                 <option>Non-AC Sleeper</option>
                             </select>
-                            <input type="number" placeholder="Total Seats" value={busForm.totalSeats} onChange={e => setBusForm({...busForm, totalSeats: e.target.value})} style={styles.formInput} required />
-                            <button className="btn btn-primary" style={{gridColumn: 'span 2'}}>Add Bus</button>
+                            <input type="number" placeholder={t('total_seats') || "Total Seats"} value={busForm.totalSeats} onChange={e => setBusForm({...busForm, totalSeats: e.target.value})} style={styles.formInput} required />
+                            <button className="btn btn-primary" style={{gridColumn: 'span 2'}}>{t('add_bus')}</button>
                         </form>
                     </div>
 
@@ -381,11 +435,11 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                         <table style={styles.table}>
                             <thead>
                                 <tr style={styles.tableHeadRow}>
-                                    <th>OPRATOR</th>
-                                    <th>NUMBER</th>
-                                    <th>TYPE</th>
-                                    <th>SEATS</th>
-                                    <th>ACTION</th>
+                                    <th>{t('operator_name')}</th>
+                                    <th>{t('bus_number')}</th>
+                                    <th>{t('type')}</th>
+                                    <th>{t('seats')}</th>
+                                    <th>{t('action')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -410,37 +464,37 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
 
             {activeTab === 'routes' && (
                 <div style={styles.tabContent}>
-                    <PremiumBackButton to="/admin" label="Back to Dashboard" />
+                    <PremiumBackButton to="/admin" label={t('back_to_dashboard') || "Back to Dashboard"} />
                     <div style={styles.header}>
-                        <h2 style={styles.pageTitle}>Route Management</h2>
-                        <p style={styles.subTitle}>Define travel routes and reaching points</p>
+                        <h2 style={styles.pageTitle}>{t('routes_management')}</h2>
+                        <p style={styles.subTitle}>{t('define_travel_routes') || 'Define travel routes and reaching points'}</p>
                     </div>
 
                     <div style={{...styles.card, marginBottom: '20px'}}>
-                        <h3 style={styles.cardTitle}>Create New Route</h3>
+                        <h3 style={styles.cardTitle}>{t('create_new_route')}</h3>
                         <form onSubmit={handleCreateRoute} className="admin-grid-3">
                             <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>Source City</label>
+                                <label style={styles.inputLabel}>{t('source_city')}</label>
                                 <input placeholder="e.g. Hyderabad" value={routeForm.source} onChange={e => setRouteForm({...routeForm, source: e.target.value})} className="admin-input-premium" required />
                             </div>
                             <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>Destination City</label>
+                                <label style={styles.inputLabel}>{t('destination_city')}</label>
                                 <input placeholder="e.g. Bangalore" value={routeForm.destination} onChange={e => setRouteForm({...routeForm, destination: e.target.value})} className="admin-input-premium" required />
                             </div>
                             <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>Boarding Point</label>
+                                <label style={styles.inputLabel}>{t('boarding_point')}</label>
                                 <input placeholder="e.g. MGBS Terminal" value={routeForm.departurePoint} onChange={e => setRouteForm({...routeForm, departurePoint: e.target.value})} className="admin-input-premium" required />
                             </div>
                             <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>Dropping Point</label>
+                                <label style={styles.inputLabel}>{t('dropping_point')}</label>
                                 <input placeholder="e.g. Majestic Stand" value={routeForm.arrivalPoint} onChange={e => setRouteForm({...routeForm, arrivalPoint: e.target.value})} className="admin-input-premium" required />
                             </div>
                             <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>Distance (km)</label>
+                                <label style={styles.inputLabel}>{t('distance_km')}</label>
                                 <input type="number" placeholder="0" value={routeForm.distance} onChange={e => setRouteForm({...routeForm, distance: e.target.value})} className="admin-input-premium" required />
                             </div>
                             <div style={{ display: 'flex' }}>
-                                <button className="btn btn-primary" style={{width: '100%', height: '48px', fontSize: '1rem'}}>+ Create Route</button>
+                                <button className="btn btn-primary" style={{width: '100%', height: '48px', fontSize: '1rem'}}>+ {t('create_route')}</button>
                             </div>
                         </form>
                     </div>
@@ -449,10 +503,10 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                         <table style={styles.table}>
                             <thead>
                                 <tr style={styles.tableHeadRow}>
-                                    <th>FROM (SOURCE)</th>
-                                    <th>TO (DESTINATION)</th>
-                                    <th>DISTANCE</th>
-                                    <th>ACTION</th>
+                                    <th>{t('from') || 'FROM (SOURCE)'}</th>
+                                    <th>{t('to') || 'TO (DESTINATION)'}</th>
+                                    <th>{t('distance') || 'DISTANCE'}</th>
+                                    <th>{t('action')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -486,46 +540,46 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
 
             {activeTab === 'schedules' && (
                 <div style={styles.tabContent}>
-                    <PremiumBackButton to="/admin" label="Back to Dashboard" />
+                    <PremiumBackButton to="/admin" label={t('back_to_dashboard') || "Back to Dashboard"} />
                     <div style={styles.header}>
-                        <h2 style={styles.pageTitle}>Schedule Management</h2>
-                        <p style={styles.subTitle}>Plan and publish bus schedules</p>
+                        <h2 style={styles.pageTitle}>{t('schedules_management')}</h2>
+                        <p style={styles.subTitle}>{t('plan_schedules')}</p>
                     </div>
 
                     <div style={{...styles.card, marginBottom: '20px'}}>
-                        <h3 style={styles.cardTitle}>Publish New Schedule</h3>
+                        <h3 style={styles.cardTitle}>{t('publish_new_schedule')}</h3>
                         <form onSubmit={handleCreateSchedule} className="admin-grid-3">
                             <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>Select Bus</label>
-                                <select value={scheduleForm.busId} onChange={e => setScheduleForm({...scheduleForm, busId: e.target.value})} className="admin-input-premium" required>
-                                    <option value="">Choose Bus...</option>
+                                <label style={styles.inputLabel}>{t('select_bus')}</label>
+                                <select value={scheduleForm.bus} onChange={e => setScheduleForm({...scheduleForm, bus: e.target.value})} className="admin-input-premium" required>
+                                    <option value="">{t('choose_bus') || 'Choose Bus...'}</option>
                                     {buses.map(b => (
                                         <option key={b._id} value={b._id}>{b.operatorName} - {b.busNumber}</option>
                                     ))}
                                 </select>
                             </div>
                             <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>Select Route</label>
-                                <select value={scheduleForm.routeId} onChange={e => setScheduleForm({...scheduleForm, routeId: e.target.value})} className="admin-input-premium" required>
-                                    <option value="">Choose Route...</option>
+                                <label style={styles.inputLabel}>{t('select_route')}</label>
+                                <select value={scheduleForm.route} onChange={e => setScheduleForm({...scheduleForm, route: e.target.value})} className="admin-input-premium" required>
+                                    <option value="">{t('choose_route') || 'Choose Route...'}</option>
                                     {routes.map(r => (
                                         <option key={r._id} value={r._id}>{r.source} ➝ {r.destination}</option>
                                     ))}
                                 </select>
                             </div>
                             <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>Departure Time</label>
+                                <label style={styles.inputLabel}>{t('departure_time')}</label>
                                 <input type="datetime-local" value={scheduleForm.departureTime} onChange={e => setScheduleForm({...scheduleForm, departureTime: e.target.value})} className="admin-input-premium" required />
                             </div>
                             <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>Arrival Time</label>
+                                <label style={styles.inputLabel}>{t('arrival_time')}</label>
                                 <input type="datetime-local" value={scheduleForm.arrivalTime} onChange={e => setScheduleForm({...scheduleForm, arrivalTime: e.target.value})} className="admin-input-premium" required />
                             </div>
                             <div style={styles.inputGroupCompact}>
-                                <label style={styles.inputLabel}>Ticket Price (₹)</label>
+                                <label style={styles.inputLabel}>{t('ticket_price')}</label>
                                 <input type="number" placeholder="e.g. 1500" value={scheduleForm.price} onChange={e => setScheduleForm({...scheduleForm, price: e.target.value})} className="admin-input-premium" required />
                             </div>
-                            <button className="btn btn-primary" style={{width: '100%', height: '48px', fontSize: '1rem'}}>+ Publish Schedule</button>
+                            <button className="btn btn-primary" style={{width: '100%', height: '48px', fontSize: '1rem'}}>+ {t('publish_schedule')}</button>
                         </form>
                     </div>
 
@@ -533,11 +587,11 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                         <table style={styles.table}>
                             <thead>
                                 <tr style={styles.tableHeadRow}>
-                                    <th>BUS</th>
-                                    <th>ROUTE</th>
-                                    <th>PRICE</th>
-                                    <th>STATUS</th>
-                                    <th>ACTION</th>
+                                    <th>{t('bus') || 'BUS'}</th>
+                                    <th>{t('route') || 'ROUTE'}</th>
+                                    <th>{t('price') || 'PRICE'}</th>
+                                    <th>{t('status')}</th>
+                                    <th>{t('action')}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -551,18 +605,35 @@ const AdminDashboard = ({ initialTab = 'overview' }) => {
                                         </td>
                                         <td>
                                             <div style={styles.routeGroup}>
-                                                <span style={styles.routeName}>{s.route?.source} ➝ {s.route?.destination}</span>
-                                                <span style={styles.routeSub}>{new Date(s.departureTime).toLocaleString()}</span>
+                                                <span style={styles.routeName}>{s.route?.source || 'Unknown'} ➝ {s.route?.destination || 'Unknown'}</span>
+                                                <span style={styles.routeSub}>{s.departureTime ? new Date(s.departureTime).toLocaleString() : 'N/A'}</span>
                                             </div>
                                         </td>
                                         <td style={{fontWeight: '900', color: '#10b981'}}>₹{s.price}</td>
                                         <td>
-                                            <span style={styles.statusBadge}>Active</span>
+                                            <span style={{
+                                                ...styles.statusBadge,
+                                                background: s.status === 'Ongoing' ? '#3b82f615' : '#10b98115',
+                                                color: s.status === 'Ongoing' ? '#3b82f6' : '#10b981'
+                                            }}>{s.status || 'Scheduled'}</span>
                                         </td>
                                         <td>
-                                            <button onClick={() => handleDeleteSchedule(s._id)} style={{...styles.textBtn, color: '#ef4444'}}>
-                                                <Trash2 size={16} />
-                                            </button>
+                                            <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
+                                                {s.status === 'Scheduled' && (
+                                                    <button 
+                                                        onClick={() => { setSelectedSchedule(s); setOtpModal(true); }}
+                                                        style={{...styles.actionBtn, padding: '4px 10px', fontSize: '0.75rem'}}
+                                                    >
+                                                        {t('start_ride') || 'Start Ride'}
+                                                    </button>
+                                                )}
+                                                {s.status === 'Ongoing' && (
+                                                    <span style={{fontSize: '0.7rem', color: '#3b82f6', fontWeight: '700'}}>{t('trip_live') || 'LIVE'}</span>
+                                                )}
+                                                <button onClick={() => handleDeleteSchedule(s._id)} style={{...styles.textBtn, color: '#ef4444'}}>
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -763,6 +834,30 @@ const styles = {
         outline: 'none',
         transition: 'border-color 0.2s',
         width: '100%',
+    },
+    modalOverlay: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0,0,0,0.85)',
+        backdropFilter: 'blur(10px)',
+        zIndex: 10000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px'
+    },
+    modalContent: {
+        background: '#0f141c',
+        padding: '40px',
+        borderRadius: '32px',
+        width: '100%',
+        maxWidth: '450px',
+        border: '1px solid rgba(255,255,255,0.1)',
+        boxShadow: '0 30px 60px rgba(0,0,0,0.8)',
+        textAlign: 'center'
     }
 };
 

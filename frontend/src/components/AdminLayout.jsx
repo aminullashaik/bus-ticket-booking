@@ -1,14 +1,11 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { 
     LayoutDashboard, 
     Bus, 
     Map, 
     Calendar, 
     LogOut, 
-    Settings,
     ChevronRight,
-    Users,
     Ticket,
     HelpCircle,
     Bell,
@@ -16,11 +13,14 @@ import {
     Menu,
     Search
 } from 'lucide-react';
+import { useTranslation } from '../utils/LanguageContext';
 
 const AdminLayout = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
-    const user = JSON.parse(localStorage.getItem('user'));
+    let user = null;
+    try { user = JSON.parse(localStorage.getItem('user')); } catch(e) { localStorage.removeItem('user'); }
 
     const handleLogout = () => {
         localStorage.removeItem('user');
@@ -29,12 +29,12 @@ const AdminLayout = () => {
     };
 
     const sidebarLinks = [
-        { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-        { path: '/admin/bookings', label: 'Tickets', icon: Ticket },
-        { path: '/admin/buses', label: 'Buses', icon: Bus },
-        { path: '/admin/routes', label: 'Routes', icon: Map },
-        { path: '/admin/schedules', label: 'Schedules', icon: Calendar },
-        { path: '/admin/support', label: 'Support', icon: HelpCircle },
+        { path: '/admin', label: t('overview'), icon: LayoutDashboard },
+        { path: '/admin/bookings', label: t('tickets'), icon: Ticket },
+        { path: '/admin/buses', label: t('buses_management'), icon: Bus },
+        { path: '/admin/routes', label: t('routes_management'), icon: Map },
+        { path: '/admin/schedules', label: t('schedules_management'), icon: Calendar },
+        { path: '/admin/support', label: t('support'), icon: HelpCircle },
     ];
 
     return (
@@ -51,7 +51,7 @@ const AdminLayout = () => {
                 </Link>
 
                 <div style={styles.navContainer}>
-                    <p style={styles.sectionTitle}>Main Menu</p>
+                    <p style={styles.sectionTitle}>{t('main_menu')}</p>
                     {sidebarLinks.map((link) => {
                         const Icon = link.icon;
                         const isActive = location.pathname === link.path || (link.path !== '/admin' && location.pathname.startsWith(link.path));
@@ -83,7 +83,7 @@ const AdminLayout = () => {
                 <div style={styles.sidebarFooter}>
                     <button onClick={handleLogout} style={styles.logoutBtn}>
                         <LogOut size={18} />
-                        <span>Sign Out</span>
+                        <span>{t('logout')}</span>
                     </button>
                 </div>
             </aside>
@@ -96,7 +96,7 @@ const AdminLayout = () => {
                         <Menu size={20} color="#94a3b8" style={{cursor: 'pointer'}} />
                         <div style={styles.searchBar}>
                             <Search size={16} color="#475569" />
-                            <input type="text" placeholder="Search data..." style={styles.searchInput} />
+                            <input type="text" placeholder={t('search_data')} style={styles.searchInput} />
                         </div>
                     </div>
 
@@ -109,7 +109,7 @@ const AdminLayout = () => {
                         <div style={styles.userProfile}>
                             <div style={styles.userInfo}>
                                 <span style={styles.userName}>{user?.name || 'Admin'}</span>
-                                <span style={styles.userRole}>System Administrator</span>
+                                <span style={styles.userRole}>{t('system_administrator')}</span>
                             </div>
                             <div style={styles.avatar}>
                                 <User size={20} color="#fff" />

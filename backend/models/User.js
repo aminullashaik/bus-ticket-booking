@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  secretPin: { type: String, default: '1234' }, // Simple pin for recovery in demo
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
 }, { timestamps: true });
 

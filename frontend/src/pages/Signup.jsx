@@ -1,29 +1,26 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { User, Mail, Lock, UserPlus, ShieldCheck, Zap, ArrowRight } from "lucide-react";
+import { User, Mail, Lock, UserPlus, Zap } from "lucide-react";
 import api from "../utils/api";
 import PremiumBackButton from "../components/PremiumBackButton";
+import { useTranslation } from "../utils/LanguageContext";
 
-const Register = () => {
+const Signup = () => {
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    let email = formData.email.trim();
-    if (!email.includes('@')) {
-      email += '@gmail.com';
-    }
-
     const registrationData = {
       ...formData,
-      email: email
+      email: formData.email.trim()
     };
 
     try {
@@ -31,7 +28,7 @@ const Register = () => {
       localStorage.setItem("user", JSON.stringify(data));
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "Membership request failed. Please verify your details.");
+      setError(err.response?.data?.message || t('registration_failed'));
     } finally {
       setLoading(false);
     }
@@ -43,7 +40,7 @@ const Register = () => {
 
       <div style={styles.mainWrapper}>
         <div style={{ marginBottom: '40px' }}>
-            <PremiumBackButton to="/login" label="Back to Login" />
+            <PremiumBackButton to="/login" label={t('back_to_login')} />
         </div>
 
         <motion.div 
@@ -54,8 +51,8 @@ const Register = () => {
         >
             <div style={styles.headerArea}>
                 <div style={styles.brandIcon}><UserPlus size={28} color="var(--secondary)" /></div>
-                <h2 style={styles.title}>Create Account</h2>
-                <p style={styles.subtitle}>Join us today! Enter your details below.</p>
+                <h2 style={styles.title}>{t('create_account')}</h2>
+                <p style={styles.subtitle}>{t('join_us_today')}</p>
             </div>
 
             {error && (
@@ -66,7 +63,7 @@ const Register = () => {
 
             <form onSubmit={handleSubmit} style={styles.formGrid}>
                 <div style={styles.inputGroup}>
-                    <label style={styles.label}>Full Name</label>
+                    <label style={styles.label}>{t('full_name')}</label>
                     <div style={{...styles.inputWrapper, borderColor: focusedField === 'name' ? 'var(--secondary)' : 'var(--border-glass)'}}>
                         <User size={18} color={focusedField === 'name' ? 'var(--secondary)' : '#64748b'} />
                         <input
@@ -83,7 +80,7 @@ const Register = () => {
                 </div>
 
                 <div style={styles.inputGroup}>
-                    <label style={styles.label}>Email Address or Username</label>
+                    <label style={styles.label}>{t('email_or_username')}</label>
                     <div style={{...styles.inputWrapper, borderColor: focusedField === 'email' ? 'var(--secondary)' : 'var(--border-glass)'}}>
                         <Mail size={18} color={focusedField === 'email' ? 'var(--secondary)' : '#64748b'} />
                         <input
@@ -100,12 +97,12 @@ const Register = () => {
                 </div>
 
                 <div style={styles.inputGroup}>
-                    <label style={styles.label}>Password</label>
+                    <label style={styles.label}>{t('password')}</label>
                     <div style={{...styles.inputWrapper, borderColor: focusedField === 'password' ? 'var(--secondary)' : 'var(--border-glass)'}}>
                         <Lock size={18} color={focusedField === 'password' ? 'var(--secondary)' : '#64748b'} />
                         <input
                             type="password"
-                            placeholder="Enter your password"
+                            placeholder="••••••••"
                             style={styles.input}
                             onFocus={() => setFocusedField('password')}
                             onBlur={() => setFocusedField(null)}
@@ -117,18 +114,18 @@ const Register = () => {
                 </div>
 
                 <button type="submit" disabled={loading} className="btn btn-primary" style={{...styles.submitBtn, background: "linear-gradient(135deg, var(--secondary), #059669)"}}>
-                    {loading ? "Creating Account..." : "Sign Up"}
+                    {loading ? t('creating_account') : t('sign_up_button')}
                 </button>
             </form>
 
             <div style={styles.footer}>
-                Already have an account? <span style={styles.link} onClick={() => navigate("/login")}>Sign In</span>
+                {t('already_have_account')} <span style={styles.link} onClick={() => navigate("/login")}>{t('sign_in_link')}</span>
             </div>
         </motion.div>
 
         <div style={styles.safetyRow}>
             <Zap size={16} color="var(--primary)" />
-            <span>Secure & Fast Registration</span>
+            <span>{t('secure_registration')}</span>
         </div>
       </div>
     </div>
@@ -156,4 +153,4 @@ const styles = {
   safetyRow: { marginTop: "32px", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", color: "rgba(255,255,255,0.2)", fontSize: "0.85rem", fontWeight: "600" }
 };
 
-export default Register;
+export default Signup;

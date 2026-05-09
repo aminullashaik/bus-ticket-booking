@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bus, Clock, ArrowRight, Star, ShieldCheck, MapPin, Navigation, Filter, ChevronRight, Calendar, Users, Zap } from 'lucide-react';
+import { Bus, Clock, ArrowRight, Star, ShieldCheck, Filter, ChevronRight, Calendar, Users, Zap } from 'lucide-react';
 import api from '../utils/api';
 import PremiumBackButton from '../components/PremiumBackButton';
+import { useTranslation } from '../utils/LanguageContext';
 
-const BusSearch = () => {
+const SearchBuses = () => {
   const [searchParams] = useSearchParams();
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const from = searchParams.get('from');
   const to = searchParams.get('to');
@@ -56,7 +58,7 @@ const BusSearch = () => {
                 <div key={i} className="card-premium skeleton-shimmer" style={{...styles.busCard, height: '280px', border: '1px solid rgba(255,255,255,0.05)'}}></div>
             ))}
          </div>
-         <p style={{ textAlign: 'center', marginTop: '20px', color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: '600', animation: 'pulse 2s infinite' }}>Searching live inventory...</p>
+         <p style={{ textAlign: 'center', marginTop: '20px', color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: '600', animation: 'pulse 2s infinite' }}>{t('searching_live')}</p>
       </div>
     </div>
   );
@@ -66,19 +68,19 @@ const BusSearch = () => {
       <div className="container" style={{ paddingTop: '100px', paddingBottom: '60px' }}>
         <header style={styles.searchHeader}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                <PremiumBackButton to="/" label="Modify Search" />
+                <PremiumBackButton to="/" label={t('modify_search')} />
                 <div>
                     <h1 style={styles.routeHeadline}>
                         {from && to ? (
                             <><span style={{ color: 'var(--primary)' }}>{from}</span> <ArrowRight size={24} style={{ margin: '0 10px' }} /> <span style={{ color: 'var(--secondary)' }}>{to}</span></>
-                        ) : 'Executive Fleet Selection'}
+                        ) : t('executive_fleet')}
                     </h1>
                     <div style={styles.searchMeta}>
-                        <Calendar size={14} /> {date || 'All Dates'} • <Users size={14} /> {schedules.length} Luxury Buses Available
+                        <Calendar size={14} /> {date || t('all_dates')} • <Users size={14} /> {schedules.length} {t('buses_available')}
                     </div>
                 </div>
             </div>
-            <button style={styles.filterBtn}><Filter size={18} /> Filters</button>
+            <button style={styles.filterBtn}><Filter size={18} /> {t('filters')}</button>
         </header>
 
         {schedules.length === 0 ? (
@@ -89,12 +91,11 @@ const BusSearch = () => {
             style={styles.emptyCard}
           >
               <div style={styles.emptyIcon}><Bus size={48} /></div>
-              <h2 style={{ marginBottom: '12px' }}>No Service Found</h2>
+              <h2 style={{ marginBottom: '12px' }}>{t('no_service_found')}</h2>
               <p style={{ color: 'var(--text-muted)', marginBottom: '30px', maxWidth: '400px', margin: '0 auto 30px' }}>
-                  We couldn't find any premium schedules for this route on the selected date. 
-                  Try adjusting your search criteria.
+                  {t('no_service_desc')}
               </p>
-              <Link to="/" className="btn btn-primary">Try New Search</Link>
+              <Link to="/" className="btn btn-primary">{t('try_new_search')}</Link>
           </motion.div>
         ) : (
           <motion.div 
@@ -115,14 +116,14 @@ const BusSearch = () => {
                             <div style={styles.busInfo}>
                                 <div style={styles.busIcon}><Bus size={20} /></div>
                                 <div>
-                                    <h3 style={styles.operatorName}>{schedule.bus.operatorName}</h3>
-                                    <div style={styles.busTypeBadge}>{schedule.bus.type}</div>
+                                    <h3 style={styles.operatorName}>{schedule.bus?.operatorName || 'JBS Executive'}</h3>
+                                    <div style={styles.busTypeBadge}>{schedule.bus?.type || 'Luxury Carrier'}</div>
                                 </div>
                             </div>
                             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                 {Math.random() > 0.5 && (
                                     <div style={styles.liveBadge}>
-                                        <span style={styles.pulseDot}></span> Selling Fast
+                                        <span style={styles.pulseDot}></span> {t('selling_fast')}
                                     </div>
                                 )}
                                 <div style={styles.ratingBox}>
@@ -135,9 +136,9 @@ const BusSearch = () => {
                         {/* CARD MIDDLE: Journey Visualization */}
                         <div style={styles.journeyWrapper}>
                             <div style={styles.timeCluster}>
-                                <span style={styles.timeText}>{new Date(schedule.departureTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                                <span style={styles.cityText}>{schedule.route.source}</span>
-                                <span style={styles.pointText}>{schedule.route.departurePoint}</span>
+                                <span style={styles.timeText}>{schedule.departureTime ? new Date(schedule.departureTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}</span>
+                                <span style={styles.cityText}>{schedule.route?.source || 'Origin'}</span>
+                                <span style={styles.pointText}>{schedule.route?.departurePoint || 'Terminal'}</span>
                             </div>
 
                             <div style={styles.journeyVisual}>
@@ -147,9 +148,9 @@ const BusSearch = () => {
                             </div>
 
                             <div style={{...styles.timeCluster, textAlign: 'right'}}>
-                                <span style={styles.timeText}>{new Date(schedule.arrivalTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                                <span style={styles.cityText}>{schedule.route.destination}</span>
-                                <span style={styles.pointText}>{schedule.route.arrivalPoint}</span>
+                                <span style={styles.timeText}>{schedule.arrivalTime ? new Date(schedule.arrivalTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}</span>
+                                <span style={styles.cityText}>{schedule.route?.destination || 'Destination'}</span>
+                                <span style={styles.pointText}>{schedule.route?.arrivalPoint || 'Drop point'}</span>
                             </div>
                         </div>
 
@@ -170,7 +171,7 @@ const BusSearch = () => {
                                     className="btn btn-primary" 
                                     style={styles.bookBtn}
                                 >
-                                    Select Seats <ChevronRight size={18} />
+                                    {t('select_seats')} <ChevronRight size={18} />
                                 </button>
                             </div>
                         </div>
@@ -225,4 +226,4 @@ const styles = {
   pulseDot: { width: '6px', height: '6px', background: '#ef4444', borderRadius: '50%', animation: 'pulse 1.5s infinite' }
 };
 
-export default BusSearch;
+export default SearchBuses;

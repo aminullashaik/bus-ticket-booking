@@ -18,7 +18,7 @@ A full-stack MERN application for booking bus tickets. This application allows u
 cd backend
 npm install
 # Create Admin User
-node seed.js
+node scripts/seed.js
 # Start Server
 npm run dev
 ```

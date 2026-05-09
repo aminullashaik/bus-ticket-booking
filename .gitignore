@@ -135,7 +135,17 @@ dist
 !.yarn/sdks
 !.yarn/versions
 
+
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# AI/Debug Clutter
+*.txt
+!README.txt
+*.log
+**/scratch/
+**/dist/
+node_modules/
+.env
 

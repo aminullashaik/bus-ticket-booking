@@ -4,8 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, ChevronRight, User, ShieldCheck, Zap, Info, Users } from 'lucide-react';
 import api from '../utils/api';
 import PremiumBackButton from '../components/PremiumBackButton';
+import { useTranslation } from '../utils/LanguageContext';
 
 const BusDetails = () => {
+  const { t } = useTranslation();
   const { scheduleId } = useParams();
   const navigate = useNavigate();
   const [schedule, setSchedule] = useState(null);
@@ -37,9 +39,10 @@ const BusDetails = () => {
   };
 
   const handleBooking = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
+    let user = null;
+    try { user = JSON.parse(localStorage.getItem('user')); } catch(e) { localStorage.removeItem('user'); }
     if (!user) {
-        alert('Please login to book tickets');
+        alert(t('login_required_booking') || 'Please login to book tickets');
         navigate('/login');
         return;
     }
@@ -63,14 +66,20 @@ const BusDetails = () => {
     </div>
   );
 
-  const seats = schedule.bus.layout.length > 0 ? schedule.bus.layout : 
+  const seats = (schedule?.bus?.layout && schedule.bus.layout.length > 0) ? schedule.bus.layout : 
     Array.from({ length: 40 }, (_, i) => `${Math.floor(i/4) + 1}${['A','B','C','D'][i%4]}`);
+
+  const operatorName = schedule?.bus?.operatorName || 'Exclusive Fleet';
+  const busType = schedule?.bus?.type || 'Luxury Bus';
+  const source = schedule?.route?.source || 'Origin';
+  const destination = schedule?.route?.destination || 'Destination';
+  const arrivalTime = schedule?.arrivalTime ? new Date(schedule.arrivalTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'TBD';
 
   return (
     <div style={styles.pageWrapper}>
       <div className="container" style={{ paddingTop: '100px', paddingBottom: '60px' }}>
         <div style={{ marginBottom: '32px' }}>
-            <PremiumBackButton to="/buses" label="Back to Fleet" />
+            <PremiumBackButton to="/search" label={t('back_to_fleet')} />
         </div>
 
         <div style={styles.mainGrid}>
@@ -82,13 +91,13 @@ const BusDetails = () => {
             >
                 <div style={styles.sectionHeader}>
                     <div>
-                        <h1 style={styles.pageTitle}>Select Journey Seats</h1>
-                        <p style={styles.pageSub}>{schedule.bus.operatorName} • {schedule.bus.type}</p>
+                        <h1 style={styles.pageTitle}>{t('select_journey_seats')}</h1>
+                        <p style={styles.pageSub}>{operatorName} • {busType}</p>
                     </div>
                     <div style={styles.legenda}>
-                        <div style={styles.legendItem}><div style={{...styles.seatSample, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)'}} /> Available</div>
-                        <div style={styles.legendItem}><div style={{...styles.seatSample, background: 'var(--primary)', border: 'none'}} /> Selected</div>
-                        <div style={styles.legendItem}><div style={{...styles.seatSample, background: '#1e293b', border: 'none', opacity: 0.5}} /> Booked</div>
+                        <div style={styles.legendItem}><div style={{...styles.seatSample, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)'}} /> {t('available')}</div>
+                        <div style={styles.legendItem}><div style={{...styles.seatSample, background: 'var(--primary)', border: 'none'}} /> {t('selected')}</div>
+                        <div style={styles.legendItem}><div style={{...styles.seatSample, background: '#1e293b', border: 'none', opacity: 0.5}} /> {t('booked')}</div>
                     </div>
                 </div>
 
@@ -97,7 +106,7 @@ const BusDetails = () => {
                         <div style={styles.steeringWheel}>
                             <div style={styles.steeringIcon} />
                         </div>
-                        <div style={styles.entrance}>Entry</div>
+                        <div style={styles.entrance}>{t('entry')}</div>
                     </div>
 
                     <div style={styles.seatGrid}>
@@ -144,26 +153,26 @@ const BusDetails = () => {
                         <div style={styles.summaryHeader}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                                 <ShoppingBag size={24} color="var(--primary)" />
-                                <h3 style={{ margin: 0, fontSize: '1.4rem' }}>Booking Summary</h3>
+                                <h3 style={{ margin: 0, fontSize: '1.4rem' }}>{t('booking_summary')}</h3>
                             </div>
                             <div style={styles.viewingBadge}>
-                                <Users size={12} /> {Math.floor(Math.random() * 5) + 2} viewing
+                                <Users size={12} /> {Math.floor(Math.random() * 5) + 2} {t('viewing')}
                             </div>
                         </div>
 
                         <div style={styles.summaryBody}>
                             <div style={styles.summaryRow}>
-                                <span style={styles.summaryLabel}>Journey</span>
-                                <span style={styles.summaryValue}>{schedule.route.source} ➝ {schedule.route.destination}</span>
+                                <span style={styles.summaryLabel}>{t('journey')}</span>
+                                <span style={styles.summaryValue}>{source} ➝ {destination}</span>
                             </div>
                             <div style={styles.summaryRow}>
-                                <span style={styles.summaryLabel}>Arrival</span>
-                                <span style={styles.summaryValue}>{new Date(schedule.arrivalTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} • Next Day</span>
+                                <span style={styles.summaryLabel}>{t('arrival')}</span>
+                                <span style={styles.summaryValue}>{arrivalTime} • {t('next_day')}</span>
                             </div>
                             <div style={styles.summaryRow}>
-                                <span style={styles.summaryLabel}>Selected Seats</span>
+                                <span style={styles.summaryLabel}>{t('selected_seats')}</span>
                                 <span style={{...styles.summaryValue, color: 'var(--primary)'}}>
-                                    {selectedSeats.length > 0 ? selectedSeats.join(', ') : 'No seats selected'}
+                                    {selectedSeats.length > 0 ? selectedSeats.join(', ') : t('no_seats_selected')}
                                 </span>
                             </div>
                             
@@ -171,18 +180,18 @@ const BusDetails = () => {
 
                             <div style={styles.pricingArea}>
                                 <div style={styles.priceRow}>
-                                    <span style={styles.summaryLabel}>Seat Price (x{selectedSeats.length || 1})</span>
+                                    <span style={styles.summaryLabel}>{t('seat_price')} (x{selectedSeats.length || 1})</span>
                                     <span style={styles.summaryValue}>₹{schedule.price}</span>
                                 </div>
                                 <div style={{...styles.priceRow, marginTop: '20px'}}>
-                                    <span style={{...styles.summaryLabel, color: '#fff', fontSize: '1.1rem'}}>Total Payable</span>
+                                    <span style={{...styles.summaryLabel, color: '#fff', fontSize: '1.1rem'}}>{t('total_payable')}</span>
                                     <span style={styles.totalAmount}>₹{selectedSeats.length * schedule.price}</span>
                                 </div>
                             </div>
 
                             <div style={styles.trustBadge}>
                                 <ShieldCheck size={14} color="var(--secondary)" />
-                                <span>No hidden fees • Instant Confirmation</span>
+                                <span>{t('no_hidden_fees')} • {t('instant_confirmation')}</span>
                             </div>
 
                             <button 
@@ -191,7 +200,7 @@ const BusDetails = () => {
                                 onClick={handleBooking}
                                 disabled={selectedSeats.length === 0}
                             >
-                                {selectedSeats.length > 0 ? `Pay ₹${selectedSeats.length * schedule.price}` : 'Select Seats to Proceed'}
+                                {selectedSeats.length > 0 ? `${t('pay')} ₹${selectedSeats.length * schedule.price}` : t('select_seats_proceed')}
                                 <ArrowRight size={20} />
                             </button>
                         </div>
@@ -199,7 +208,7 @@ const BusDetails = () => {
 
                     <div style={styles.infoBox}>
                         <Info size={16} />
-                        <p>Arrival times are estimates based on live traffic data.</p>
+                        <p>{t('arrival_estimate_info')}</p>
                     </div>
                 </div>
             </motion.div>

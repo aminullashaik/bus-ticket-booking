@@ -5,7 +5,7 @@ const busSchema = new mongoose.Schema({
   operatorName: { type: String, required: true },
   type: { type: String, enum: ['AC Seater', 'Non-AC Seater', 'AC Sleeper', 'Non-AC Sleeper'], required: true },
   totalSeats: { type: Number, required: true },
-  layout: [{ type: String }] // e.g. ["1A", "1B", ...]
+  layout: [String] // e.g. ["1A", "1B", ...]
 }, { timestamps: true });
 
 // Pre-fill layout if not provided (simple logic)

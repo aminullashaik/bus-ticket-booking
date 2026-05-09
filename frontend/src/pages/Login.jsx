@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Lock, ArrowLeft, ShieldCheck, Zap, Eye, EyeOff, Key } from "lucide-react";
+import { Mail, Lock, ShieldCheck, Zap, Eye, EyeOff, Key } from "lucide-react";
 import api from "../utils/api";
 import PremiumBackButton from "../components/PremiumBackButton";
+import { useTranslation } from "../utils/LanguageContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -12,19 +13,15 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    let email = formData.email.trim();
-    if (!email.includes('@')) {
-      email += '@gmail.com';
-    }
-
     const loginData = {
-      email: email,
+      email: formData.email.trim(),
       password: formData.password.trim()
     };
 
@@ -37,7 +34,7 @@ const Login = () => {
         navigate("/");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid credentials");
+      setError(err.response?.data?.message || t('invalid_credentials'));
     } finally {
       setLoading(false);
     }
@@ -50,7 +47,7 @@ const Login = () => {
       
       <div style={styles.mainWrapper}>
         <div style={{ marginBottom: '40px' }}>
-            <PremiumBackButton to="/" label="Back to Home" />
+            <PremiumBackButton to="/" label={t('back_to_home')} />
         </div>
 
         <motion.div 
@@ -61,8 +58,8 @@ const Login = () => {
         >
             <div style={styles.headerArea}>
                 <div style={styles.brandIcon}><Key size={28} color="var(--primary)" /></div>
-                <h2 style={styles.title}>Login</h2>
-                <p style={styles.subtitle}>Sign in to your account</p>
+                <h2 style={styles.title}>{t('welcome_back')}</h2>
+                <p style={styles.subtitle}>{t('login_subtitle')}</p>
             </div>
 
             {error && (
@@ -73,7 +70,7 @@ const Login = () => {
 
             <form onSubmit={handleSubmit} style={styles.formGrid}>
                 <div style={styles.inputGroup}>
-                    <label style={styles.label}>Email Address or Username</label>
+                    <label style={styles.label}>{t('email_or_username')}</label>
                     <div style={{...styles.inputWrapper, borderColor: focusedField === 'email' ? 'var(--primary)' : 'var(--border-glass)'}}>
                         <Mail size={18} color={focusedField === 'email' ? 'var(--primary)' : '#64748b'} />
                         <input
@@ -91,8 +88,8 @@ const Login = () => {
 
                 <div style={styles.inputGroup}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <label style={styles.label}>Password</label>
-                        <span style={styles.forgotLink}>Forgot Password?</span>
+                        <label style={styles.label}>{t('password')}</label>
+                        <span style={styles.forgotLink} onClick={() => navigate("/forgot-password")}>{t('forgot_password')}</span>
                     </div>
                     <div style={{...styles.inputWrapper, borderColor: focusedField === 'password' ? 'var(--primary)' : 'var(--border-glass)'}}>
                         <Lock size={18} color={focusedField === 'password' ? 'var(--primary)' : '#64748b'} />
@@ -118,7 +115,7 @@ const Login = () => {
                     className="btn btn-primary"
                     style={styles.submitBtn}
                 >
-                    {loading ? "Logging in..." : "Login"}
+                    {loading ? t('logging_in') : t('sign_in')}
                 </button>
             </form>
 
@@ -129,13 +126,13 @@ const Login = () => {
             </div>
 
             <div style={styles.footer}>
-                New here? <span style={styles.link} onClick={() => navigate("/register")}>Sign Up</span>
+                {t('dont_have_account')} <span style={styles.link} onClick={() => navigate("/signup")}>{t('sign_up_link')}</span>
             </div>
         </motion.div>
 
         <div style={styles.safetyRow}>
             <ShieldCheck size={16} color="var(--secondary)" />
-            <span>Secure Login</span>
+            <span>{t('secure_login')}</span>
         </div>
       </div>
     </div>

@@ -6,7 +6,9 @@ const scheduleSchema = new mongoose.Schema({
   departureTime: { type: Date, required: true },
   arrivalTime: { type: Date, required: true },
   price: { type: Number, required: true },
-  bookedSeats: [{ type: String }] // Store seat numbers like "1A"
+  bookedSeats: [String], // Store seat numbers like "1A"
+  status: { type: String, enum: ['Scheduled', 'Ongoing', 'Completed'], default: 'Scheduled' },
+  otp: { type: String, default: () => Math.floor(1000 + Math.random() * 9000).toString() }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Schedule', scheduleSchema);

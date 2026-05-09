@@ -52,4 +52,37 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    // In a real project, we'd send an email. 
+    // Here we just confirm the account exists.
+    res.json({ message: 'Account found. Please enter your secret PIN to reset password.' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const { email, pin, newPassword } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    if (user.secretPin !== pin) {
+      return res.status(401).json({ message: 'Invalid Secret PIN' });
+    }
+    
+    user.password = newPassword;
+    await user.save();
+    
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, forgotPassword, resetPassword };

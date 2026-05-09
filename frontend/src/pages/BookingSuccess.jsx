@@ -2,8 +2,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle, Download, Calendar, MapPin, Share2, Ticket, ChevronRight, Bus, ShieldCheck } from 'lucide-react';
 import PremiumBackButton from '../components/PremiumBackButton';
+import { useTranslation } from '../utils/LanguageContext';
 
 const BookingSuccess = () => {
+    const { t } = useTranslation();
     const location = useLocation();
     const { booking } = location.state || {};
     
@@ -45,7 +47,7 @@ const BookingSuccess = () => {
 
       <div className="container" style={{ paddingTop: '100px', paddingBottom: '80px', maxWidth: '900px' }}>
         <div className="no-print" style={{ marginBottom: '32px' }}>
-            <PremiumBackButton to="/" label="Back to Home" />
+            <PremiumBackButton to="/" label={t('back_to_home')} />
         </div>
 
         <motion.div 
@@ -57,9 +59,9 @@ const BookingSuccess = () => {
             <div style={styles.successIcon}>
                 <CheckCircle size={48} color="var(--secondary)" />
             </div>
-            <h1 style={styles.title}>Authorization Confirmed</h1>
-            <p style={styles.subtitle}>Your JBS Elite journey has been successfully registered.</p>
-            <div style={styles.pnrBadge}>PNR: {pnr}</div>
+            <h1 style={styles.title}>{t('authorization_confirmed')}</h1>
+            <p style={styles.subtitle}>{t('registration_success')}</p>
+            <div style={styles.pnrBadge}>{t('pnr')}: {pnr}</div>
         </motion.div>
 
         <motion.div 
@@ -74,7 +76,7 @@ const BookingSuccess = () => {
                         <div style={styles.logoCircle}><Bus size={20} color="#fff" /></div>
                         <div>
                             <div style={styles.brandName}>JBS EXECUTIVE</div>
-                            <div style={styles.boardingPass}>BOARDING PASS • ELITE CLASS</div>
+                            <div style={styles.boardingPass}>{t('boarding_pass_elite')}</div>
                         </div>
                     </div>
                     <div style={styles.qrPlaceholder}>
@@ -85,9 +87,9 @@ const BookingSuccess = () => {
                 <div style={styles.ticketBody}>
                     <div style={styles.routeRow}>
                         <div style={styles.cityBlock}>
-                            <div style={styles.cityLabel}>DEPARTURE CITY</div>
+                            <div style={styles.cityLabel}>{t('departure_city')}</div>
                             <div style={styles.cityName}>{source}</div>
-                            <div style={styles.stationName}>{booking?.schedule?.route?.departurePoint || 'MAIN TERMINAL'}</div>
+                            <div style={styles.stationName}>{booking?.schedule?.route?.departurePoint || t('main_terminal')}</div>
                         </div>
                         <div style={styles.flightVisual}>
                             <div style={styles.visualLine}></div>
@@ -95,35 +97,35 @@ const BookingSuccess = () => {
                             <div style={styles.visualLine}></div>
                         </div>
                         <div style={{...styles.cityBlock, textAlign: 'right'}}>
-                            <div style={styles.cityLabel}>ARRIVAL CITY</div>
+                            <div style={styles.cityLabel}>{t('arrival_city_label')}</div>
                             <div style={styles.cityName}>{destination}</div>
-                            <div style={styles.stationName}>{booking?.schedule?.route?.arrivalPoint || 'DROP STATION'}</div>
+                            <div style={styles.stationName}>{booking?.schedule?.route?.arrivalPoint || t('drop_station')}</div>
                         </div>
                     </div>
 
                     <div style={styles.infoGrid}>
                         <div style={styles.infoBox}>
-                            <div style={styles.boxLabel}>SCHEDULED DATE</div>
+                            <div style={styles.boxLabel}>{t('scheduled_date')}</div>
                             <div style={styles.boxValue}>{departureTime.split(',')[0]}</div>
                         </div>
                         <div style={styles.infoBox}>
-                            <div style={styles.boxLabel}>DEPARTURE TIME</div>
+                            <div style={styles.boxLabel}>{t('departure_time_label')}</div>
                             <div style={styles.boxValue}>{departureTime.split(',')[1]}</div>
                         </div>
                         <div style={styles.infoBox}>
-                            <div style={styles.boxLabel}>CONFIRMED SEATS</div>
+                            <div style={styles.boxLabel}>{t('confirmed_seats')}</div>
                             <div style={{...styles.boxValue, color: 'var(--primary)'}}>{seats}</div>
                         </div>
                         <div style={styles.infoBox}>
-                            <div style={styles.boxLabel}>FLEET OPERATOR</div>
+                            <div style={styles.boxLabel}>{t('fleet_operator')}</div>
                             <div style={styles.boxValue}>{operatorName}</div>
                         </div>
                     </div>
 
                     <div style={styles.passengerRow}>
                         <div style={styles.passInfo}>
-                            <div style={styles.boxLabel}>PASSENGER NAME</div>
-                            <div style={styles.passName}>{booking?.passengerName?.toUpperCase() || 'EXECUTIVE TRAVELER'}</div>
+                            <div style={styles.boxLabel}>{t('passenger_name_label')}</div>
+                            <div style={styles.passName}>{booking?.passengerName?.toUpperCase() || t('executive_name')}</div>
                         </div>
                         <div style={styles.barcodeArea}>
                              <div style={styles.barcodeStrip}></div>
@@ -133,24 +135,24 @@ const BookingSuccess = () => {
                 </div>
 
                 <div style={styles.ticketFooter}>
-                    <div style={styles.footerItem}><ShieldCheck size={14} /> Verified Trip</div>
-                    <div style={styles.footerItem}><Calendar size={14} /> Arrive 15m Early</div>
-                    <div style={styles.footerItem}>Digital Receipt: ₹{booking?.totalAmount}</div>
+                    <div style={styles.footerItem}><ShieldCheck size={14} /> {t('verified_trip')}</div>
+                    <div style={styles.footerItem}><Calendar size={14} /> {t('arrive_early')}</div>
+                    <div style={styles.footerItem}>{t('digital_receipt')}: ₹{booking?.totalAmount}</div>
                 </div>
             </div>
         </motion.div>
 
         <div className="no-print" style={styles.actionRow}>
             <button onClick={handlePrint} className="btn-secondary" style={styles.downloadBtn}>
-                <Download size={20} /> Save Document
+                <Download size={20} /> {t('save_document')}
             </button>
-            <Link to="/my-bookings" className="btn btn-primary" style={styles.viewTripsBtn}>
-                Track My Trips <ChevronRight size={20} />
+            <Link to="/my-tickets" className="btn btn-primary" style={styles.viewTripsBtn}>
+                {t('track_my_trips')} <ChevronRight size={20} />
             </Link>
         </div>
 
         <div className="no-print" style={styles.notice}>
-            Confirmation details sent to <strong>{booking?.passengerPhone}</strong> via Multi-Channel Gateway (SMS + WhatsApp).
+            {t('confirmation_sent_notice')} (<strong>{booking?.passengerPhone}</strong>).
         </div>
       </div>
     </div>

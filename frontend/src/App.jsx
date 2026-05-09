@@ -3,19 +3,20 @@ import { AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login';
-import Register from './pages/Register';
-import BusSearch from './pages/BusSearch';
+import Signup from './pages/Signup';
+import SearchBuses from './pages/SearchBuses';
 import BusDetails from './pages/BusDetails';
 import BookingSuccess from './pages/BookingSuccess';
-import MyBookings from './pages/MyBookings';
+import MyTickets from './pages/MyTickets';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminLayout from './components/AdminLayout';
-import Support from './pages/Support';
+import HelpCenter from './pages/HelpCenter';
+import ForgotPassword from './pages/ForgotPassword';
 import LoadingBar from './components/LoadingBar';
 import PageTransition from './components/PageTransition';
 
 import PaymentPage from './pages/PaymentPage';
-import TrackingPage from './pages/TrackingPage';
+import TrackBus from './pages/TrackBus';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   let user = null;
@@ -46,8 +47,9 @@ function App() {
             {/* USER ROUTES */}
             <Route path="/" element={<PageTransition><Navbar /><Home /></PageTransition>} />
             <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
-            <Route path="/register" element={<PageTransition><Register /></PageTransition>} />
-            <Route path="/buses" element={<PageTransition><Navbar /><BusSearch /></PageTransition>} />
+            <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
+            <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
+            <Route path="/search" element={<PageTransition><Navbar /><SearchBuses /></PageTransition>} />
             
             <Route path="/book/:scheduleId" element={
               <ProtectedRoute><PageTransition><Navbar /><BusDetails /></PageTransition></ProtectedRoute>
@@ -58,8 +60,8 @@ function App() {
             <Route path="/success" element={
               <ProtectedRoute><PageTransition><Navbar /><BookingSuccess /></PageTransition></ProtectedRoute>
             } />
-            <Route path="/my-bookings" element={
-              <ProtectedRoute><PageTransition><Navbar /><MyBookings /></PageTransition></ProtectedRoute>
+            <Route path="/my-tickets" element={
+              <ProtectedRoute><PageTransition><Navbar /><MyTickets /></PageTransition></ProtectedRoute>
             } />
 
             {/* ADMIN PORTAL LINES - SEPARATE LAYOUT */}
@@ -74,10 +76,10 @@ function App() {
                 <Route path="support" element={<PageTransition><AdminDashboard initialTab="support" /></PageTransition>} />
             </Route>
 
-            <Route path="/support" element={<PageTransition><Navbar /><Support /></PageTransition>} />
+            <Route path="/support" element={<PageTransition><Navbar /><HelpCenter /></PageTransition>} />
 
             <Route path="/track/:pnr" element={
-              <ProtectedRoute><PageTransition><TrackingPage /></PageTransition></ProtectedRoute>
+              <ProtectedRoute><PageTransition><TrackBus /></PageTransition></ProtectedRoute>
             } />
 
             <Route path="*" element={<Navigate to="/" />} />

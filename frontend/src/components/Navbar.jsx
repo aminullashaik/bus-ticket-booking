@@ -1,10 +1,17 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bus, LogOut, User, LayoutDashboard, Ticket, Globe, HelpCircle, Bell } from 'lucide-react';
+import { Bus, LogOut, User, LayoutDashboard, Ticket, Globe, HelpCircle, ChevronDown } from 'lucide-react';
+import { useTranslation } from '../utils/LanguageContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
+  const { lang, t, changeLanguage } = useTranslation();
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem('user'));
+  } catch (e) {
+    localStorage.removeItem('user');
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -33,30 +40,56 @@ const Navbar = () => {
         {/* Navigation Links */}
         <div style={styles.linksGroup}>
           <Link to="/" style={styles.navLink}>
-            <span style={styles.linkText}>Home</span>
+            <span style={styles.linkText}>{t('home')}</span>
           </Link>
-          <Link to="/buses" style={styles.navLink}>
+          <Link to="/search" style={styles.navLink}>
             <Globe size={16} />
-            <span style={styles.linkText}>Buses</span>
+            <span style={styles.linkText}>{t('buses')}</span>
           </Link>
           <Link to="/support" style={styles.navLink}>
             <HelpCircle size={16} />
-            <span style={styles.linkText}>Support</span>
+            <span style={styles.linkText}>{t('support')}</span>
           </Link>
           
           <div style={styles.divider}></div>
 
+          {/* Language Switcher */}
+          <div style={styles.langSwitcher}>
+            <Globe size={16} color="#94a3b8" />
+            <select 
+              value={lang} 
+              onChange={(e) => changeLanguage(e.target.value)}
+              style={styles.langSelect}
+            >
+              <option value="en">English</option>
+              <option value="hi">हिंदी (Hindi)</option>
+              <option value="te">తెలుగు (Telugu)</option>
+              <option value="ta">தமிழ் (Tamil)</option>
+              <option value="kn">ಕನ್ನಡ (Kannada)</option>
+              <option value="ml">മലയാളം (Malayalam)</option>
+              <option value="mr">मराठी (Marathi)</option>
+              <option value="bn">বাংলা (Bengali)</option>
+              <option value="gu">ગુજરાતી (Gujarati)</option>
+              <option value="es">Español (Spanish)</option>
+              <option value="fr">Français (French)</option>
+              <option value="ar">العربية (Arabic)</option>
+              <option value="zh">中文 (Chinese)</option>
+            </select>
+          </div>
+
+          <div style={styles.divider}></div>
+
           {user ? (
             <div style={styles.authGroup}>
-              <Link to="/my-bookings" style={styles.navLink}>
+              <Link to="/my-tickets" style={styles.navLink}>
                 <Ticket size={18} />
-                <span style={styles.linkText}>My Trips</span>
+                <span style={styles.linkText}>{t('my_trips')}</span>
               </Link>
               
               {user.role === 'admin' && (
                 <Link to="/admin" style={styles.adminPulseLink}>
                   <LayoutDashboard size={18} />
-                  <span>Admin Panel</span>
+                  <span>{t('admin_panel')}</span>
                 </Link>
               )}
 
@@ -68,7 +101,7 @@ const Navbar = () => {
                     whileHover={{ color: "#ef4444" }}
                     onClick={handleLogout} 
                     style={styles.logoutIconBtn}
-                    title="Sign Out"
+                    title={t('logout')}
                   >
                     <LogOut size={18} />
                   </motion.button>
@@ -76,15 +109,15 @@ const Navbar = () => {
             </div>
           ) : (
             <div style={styles.authGroup}>
-              <Link to="/login" style={{...styles.navLink, color: "#fff"}}>Sign In</Link>
+              <Link to="/login" style={{...styles.navLink, color: "#fff"}}>{t('sign_in')}</Link>
               <motion.button 
                 whileHover={{ scale: 1.02, boxShadow: "0 0 25px var(--primary-glow)" }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => navigate('/register')}
+                onClick={() => navigate('/signup')}
                 className="btn btn-primary"
                 style={styles.registerBtn}
               >
-                Sign Up
+                {t('sign_up')}
               </motion.button>
             </div>
           )}
@@ -190,6 +223,24 @@ const styles = {
     width: "1px",
     height: "20px",
     background: "rgba(255, 255, 255, 0.1)",
+  },
+  langSwitcher: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "4px 8px",
+    background: "rgba(255, 255, 255, 0.03)",
+    borderRadius: "8px",
+    border: "1px solid var(--border-glass)"
+  },
+  langSelect: {
+    background: "transparent",
+    border: "none",
+    color: "#fff",
+    fontSize: "0.8rem",
+    fontWeight: "600",
+    outline: "none",
+    cursor: "pointer"
   },
   registerBtn: {
     padding: "10px 24px",

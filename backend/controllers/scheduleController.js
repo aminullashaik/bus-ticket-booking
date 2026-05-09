@@ -81,4 +81,26 @@ const deleteSchedule = async (req, res) => {
     }
 };
 
-module.exports = { getSchedules, getScheduleById, createSchedule, deleteSchedule };
+const startTrip = async (req, res) => {
+    try {
+        const { otp } = req.body;
+        const schedule = await Schedule.findById(req.params.id);
+        
+        if (!schedule) {
+            return res.status(404).json({ message: 'Schedule not found' });
+        }
+        
+        if (schedule.otp !== otp) {
+            return res.status(400).json({ message: 'Invalid OTP. Trip cannot start.' });
+        }
+        
+        schedule.status = 'Ongoing';
+        await schedule.save();
+        
+        res.json({ message: 'Trip started successfully', schedule });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { getSchedules, getScheduleById, createSchedule, deleteSchedule, startTrip };

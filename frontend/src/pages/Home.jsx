@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { MapPin, Calendar, Search, ArrowRightLeft, ShieldCheck, Star, Clock, Navigation, TrendingUp, Users, Zap } from "lucide-react";
+import { useTranslation } from "../utils/LanguageContext";
 
 const Home = () => {
   const [search, setSearch] = useState({ from: "", to: "", date: "" });
   const [minDate, setMinDate] = useState("");
   const [isFocused, setIsFocused] = useState(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
@@ -17,7 +19,7 @@ const Home = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     const query = new URLSearchParams(search).toString();
-    navigate(`/buses?${query}`);
+    navigate(`/search?${query}`);
   };
 
   const swapLocations = () => {
@@ -37,7 +39,7 @@ const Home = () => {
               style={styles.liveBadge}
             >
               <div style={styles.pulseDot}></div>
-              <span>GLOBAL FLEET: 452+ PREMIUM BUSES ACTIVE</span>
+              <span>{t('global_fleet_count')}</span>
             </motion.div>
             
             <motion.h1 
@@ -45,8 +47,8 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }} 
               style={styles.heroTitle}
             >
-              Ultimate <span style={styles.glowText}>Luxury</span> <br/>
-              Intercity Travel.
+              {t('hero_title').split(' ')[0]} <span style={styles.glowText}>{t('hero_title').split(' ')[1]}</span> <br/>
+              {t('hero_title').split(' ').slice(2).join(' ')}
             </motion.h1>
             <motion.p 
                 initial={{ opacity: 0 }} 
@@ -54,8 +56,7 @@ const Home = () => {
                 transition={{ delay: 0.2 }}
                 style={styles.heroSubtitle}
             >
-              Experience the future of road travel with JBS Executive. 
-              Real-time tracking, executive lounges, and premium onboard service.
+              {t('hero_subtitle')}
             </motion.p>
           </header>
 
@@ -76,10 +77,10 @@ const Home = () => {
                 onFocus={() => setIsFocused('from')} 
                 onBlur={() => setIsFocused(null)}
               >
-                <label style={styles.label}>Departure</label>
+                <label style={styles.label}>{t('departure')}</label>
                 <div style={styles.innerInput}>
                   <Navigation size={18} color="var(--primary)" />
-                  <input type="text" placeholder="From City" style={styles.ghostInput} value={search.from} onChange={(e) => setSearch({ ...search, from: e.target.value })} required />
+                  <input type="text" placeholder={t('from')} style={styles.ghostInput} value={search.from} onChange={(e) => setSearch({ ...search, from: e.target.value })} required />
                 </div>
               </div>
 
@@ -92,10 +93,10 @@ const Home = () => {
                 onFocus={() => setIsFocused('to')} 
                 onBlur={() => setIsFocused(null)}
               >
-                <label style={styles.label}>Destination</label>
+                <label style={styles.label}>{t('destination')}</label>
                 <div style={styles.innerInput}>
                   <MapPin size={18} color="var(--secondary)" />
-                  <input type="text" placeholder="To City" style={styles.ghostInput} value={search.to} onChange={(e) => setSearch({ ...search, to: e.target.value })} required />
+                  <input type="text" placeholder={t('to')} style={styles.ghostInput} value={search.to} onChange={(e) => setSearch({ ...search, to: e.target.value })} required />
                 </div>
               </div>
 
@@ -104,7 +105,7 @@ const Home = () => {
                 onFocus={() => setIsFocused('date')} 
                 onBlur={() => setIsFocused(null)}
               >
-                <label style={styles.label}>Travel Date</label>
+                <label style={styles.label}>{t('travel_date')}</label>
                 <div style={styles.innerInput}>
                   <Calendar size={18} color="var(--accent-purple)" />
                   <input type="date" min={minDate} style={styles.dateInput} value={search.date} onChange={(e) => setSearch({ ...search, date: e.target.value })} required />
@@ -119,15 +120,15 @@ const Home = () => {
                 style={styles.actionButton}
               >
                 <Search size={22} strokeWidth={3} />
-                <span>Search</span>
+                <span>{t('search')}</span>
               </motion.button>
             </form>
           </motion.div>
 
           <div style={styles.trustRow}>
-            <div style={styles.trustItem}><ShieldCheck size={18} /> 100% Secure Payments</div>
-            <div style={styles.trustItem}><Clock size={18} /> Real-time GPS Tracking</div>
-            <div style={styles.trustItem}><Star size={18} /> Choice of 5,000+ Journeys daily</div>
+            <div style={styles.trustItem}><ShieldCheck size={18} /> {t('secure_payments')}</div>
+            <div style={styles.trustItem}><Clock size={18} /> {t('gps_tracking')}</div>
+            <div style={styles.trustItem}><Star size={18} /> {t('daily_journeys')}</div>
           </div>
         </div>
       </section>
@@ -137,18 +138,18 @@ const Home = () => {
         <div style={styles.gridContainer}>
             <div className="card-premium animate-fade-in" style={{ flex: '1 1 300px' }}>
                 <TrendingUp size={32} color="var(--primary)" style={{ marginBottom: '20px' }} />
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Fast Booking</h3>
-                <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Book your seats in seconds. Our system is designed for speed and simplicity.</p>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>{t('fast_booking')}</h3>
+                <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>{t('fast_booking_desc')}</p>
             </div>
             <div className="card-premium animate-fade-in" style={{ flex: '1 1 300px', animationDelay: '0.2s' }}>
                 <Users size={32} color="var(--secondary)" style={{ marginBottom: '20px' }} />
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>Earn Points</h3>
-                <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Get rewards on every trip. Use points for free rides or discounts.</p>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>{t('earn_points')}</h3>
+                <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>{t('earn_points_desc')}</p>
             </div>
             <div className="card-premium animate-fade-in" style={{ flex: '1 1 300px', animationDelay: '0.4s' }}>
                 <Zap size={32} color="var(--accent-purple)" style={{ marginBottom: '20px' }} />
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>E-Tickets</h3>
-                <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Get tickets directly on WhatsApp. No printing needed, just show and go.</p>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px' }}>{t('e_tickets')}</h3>
+                <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>{t('e_tickets_desc')}</p>
             </div>
         </div>
       </section>

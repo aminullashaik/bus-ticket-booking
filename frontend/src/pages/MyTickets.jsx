@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bus, Ticket, MapPin, Calendar, Clock, Download, ChevronRight, AlertCircle, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Bus, Ticket, MapPin, Calendar, Clock, Download, ArrowRight, ShoppingBag } from 'lucide-react';
 import api from '../utils/api';
 import PremiumBackButton from '../components/PremiumBackButton';
+import { useTranslation } from '../utils/LanguageContext';
 
-const MyBookings = () => {
+const MyTickets = () => {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     useEffect(() => {
         const fetchBookings = async () => {
@@ -45,18 +47,18 @@ const MyBookings = () => {
             <div className="container" style={{ paddingTop: '100px', paddingBottom: '80px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '48px' }}>
                     <div>
-                        <h1 style={styles.pageTitle}>Elite Journeys</h1>
-                        <p style={styles.pageSub}>Manage and track your premium travel registrations</p>
+                        <h1 style={styles.pageTitle}>{t('elite_journeys')}</h1>
+                        <p style={styles.pageSub}>{t('manage_journeys')}</p>
                     </div>
-                    <PremiumBackButton to="/" label="Dashboard" />
+                    <PremiumBackButton to="/" label={t('dashboard')} />
                 </div>
 
                 {bookings.length === 0 ? (
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="card-premium" style={styles.emptyCard}>
                         <div style={styles.emptyIcon}><Ticket size={48} /></div>
-                        <h2>No Active Journeys</h2>
-                        <p>You haven't registered any journeys yet. Start exploring our elite fleet.</p>
-                        <Link to="/buses" className="btn btn-primary" style={{ height: '56px', padding: '0 40px', display: 'flex', alignItems: 'center' }}>Explore Global Fleet</Link>
+                        <h2>{t('no_active_journeys')}</h2>
+                        <p>{t('no_active_journeys_desc')}</p>
+                        <Link to="/" className="btn btn-primary" style={{ height: '56px', padding: '0 40px', display: 'flex', alignItems: 'center' }}>{t('explore_fleet')}</Link>
                     </motion.div>
                 ) : (
                     <motion.div 
@@ -71,20 +73,20 @@ const MyBookings = () => {
                                     <div style={styles.operatorGroup}>
                                         <div style={styles.busIcon}><Bus size={20} /></div>
                                         <div>
-                                            <h3 style={styles.operatorName}>{booking.schedule.bus.operatorName}</h3>
+                                            <h3 style={styles.operatorName}>{booking.schedule?.bus?.operatorName || 'Unknown Operator'}</h3>
                                             <span style={styles.pnrCode}>PNR: {booking._id.slice(-6).toUpperCase()}</span>
                                         </div>
                                     </div>
                                     <div style={{...styles.statusBadge, ...getStatusStyle(booking.status)}}>
-                                        {booking.status.toUpperCase()}
+                                        {t(`status_${booking.status}`)}
                                     </div>
                                 </div>
 
                                 <div style={styles.journeyBody}>
                                     <div style={styles.routeBox}>
                                         <div style={styles.cityInfo}>
-                                            <span style={styles.timeLabel}>{new Date(booking.schedule.departureTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                                            <span style={styles.cityName}>{booking.schedule.route.source}</span>
+                                            <span style={styles.timeLabel}>{booking.schedule ? new Date(booking.schedule.departureTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}</span>
+                                            <span style={styles.cityName}>{booking.schedule?.route?.source || 'Unknown'}</span>
                                         </div>
                                         <div style={styles.visualFlow}>
                                             <div style={styles.dot}></div>
@@ -92,40 +94,41 @@ const MyBookings = () => {
                                             <div style={{...styles.dot, background: 'var(--secondary)'}}></div>
                                         </div>
                                         <div style={{...styles.cityInfo, textAlign: 'right'}}>
-                                            <span style={styles.timeLabel}>{new Date(booking.schedule.arrivalTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                                            <span style={styles.cityName}>{booking.schedule.route.destination}</span>
+                                            <span style={styles.timeLabel}>{booking.schedule ? new Date(booking.schedule.arrivalTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--'}</span>
+                                            <span style={styles.cityName}>{booking.schedule?.route?.destination || 'Unknown'}</span>
                                         </div>
                                     </div>
 
                                     <div style={styles.metaRow}>
-                                        <div style={styles.metaItem}><Calendar size={14} /> {new Date(booking.schedule.departureTime).toLocaleDateString('en-IN', {day: 'numeric', month: 'short'})}</div>
-                                        <div style={styles.metaItem}><Ticket size={14} /> Seats: {booking.seats.join(', ')}</div>
+                                        <div style={styles.metaItem}><Calendar size={14} /> {booking.schedule ? new Date(booking.schedule.departureTime).toLocaleDateString('en-IN', {day: 'numeric', month: 'short'}) : 'N/A'}</div>
+                                        <div style={styles.metaItem}><Ticket size={14} /> {t('seats')}: {booking.seats?.join(', ') || ''}</div>
                                         <div style={styles.metaItem}><ShoppingBag size={14} /> ₹{booking.totalAmount}</div>
                                     </div>
                                 </div>
 
                                 <div style={styles.cardFooter}>
                                     <div style={styles.footerNote}>
-                                        <Clock size={14} /> Registered on {new Date(booking.createdAt).toLocaleDateString()}
+                                        <Clock size={14} /> {t('registered_on')} {new Date(booking.createdAt).toLocaleDateString()}
                                     </div>
                                     <div style={styles.actionGroup}>
                                         <button 
                                             onClick={() => navigate(`/track/${booking._id.slice(-6).toUpperCase()}`)}
                                             style={{...styles.secondaryBtn, color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.3)'}}
                                         >
-                                            <MapPin size={16} /> Track Live
+                                            <MapPin size={16} /> {t('track_live')}
                                         </button>
                                         <button 
                                             onClick={() => navigate('/success', { state: { booking } })}
                                             style={styles.secondaryBtn}
                                         >
-                                            <Download size={16} /> View Ticket
+                                            <Download size={16} /> {t('view_ticket')}
                                         </button>
                                         <button 
-                                            onClick={() => navigate(`/book/${booking.schedule._id}`)}
-                                            style={styles.primaryBtn}
+                                            onClick={() => booking.schedule && navigate(`/book/${booking.schedule._id}`)}
+                                            style={{...styles.primaryBtn, opacity: booking.schedule ? 1 : 0.5, cursor: booking.schedule ? 'pointer' : 'not-allowed'}}
+                                            disabled={!booking.schedule}
                                         >
-                                            Book Again <ArrowRight size={16} />
+                                            {t('book_again')} <ArrowRight size={16} />
                                         </button>
                                     </div>
                                 </div>
@@ -184,4 +187,4 @@ const styles = {
     primaryBtn: { background: 'var(--primary)', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }
 };
 
-export default MyBookings;
+export default MyTickets;
